@@ -31,7 +31,9 @@ public class ReturnStatement extends GlslStatement {
     @Override
     public void asString(StringBuilder builder, int indentLevel) {
         if (value != null) {
-            builder.append("\t".repeat(indentLevel)).append("return ").append(value).append(";");
+            builder.append("\t".repeat(indentLevel)).append("return ");
+            value.asString(builder);
+            builder.append(";");
             return;
         }
         builder.append("\t".repeat(indentLevel)).append("return;");

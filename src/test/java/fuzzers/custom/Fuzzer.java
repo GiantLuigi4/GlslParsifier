@@ -33,6 +33,9 @@ public class Fuzzer {
     GlslFile file;
     Random rng = new Random();
 
+    String[] numericTypes = new String[]{
+            "float", "int"
+    };
     String[] types = new String[]{
             "float", "int", "bool", "vec2", "vec3", "vec4", "mat4", "mat3", "mat2"
     };
@@ -243,7 +246,7 @@ public class Fuzzer {
                 return doWhile;
             }
             case 5 -> {
-                String type = randomType();
+                String type = randomNumericType();
                 String name = "i_" + randomIdentifier();
                 ForStatement statement = new ForStatement(
                         new VarDefStatement(new VarSpecifier(type, name)).setValue(nextValue(type)),
@@ -607,6 +610,10 @@ public class Fuzzer {
 
     private String randomType() {
         return types[rng.nextInt(types.length)];
+    }
+
+    private String randomNumericType() {
+        return numericTypes[rng.nextInt(numericTypes.length)];
     }
 
     private String randomFuncType() {

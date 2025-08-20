@@ -23,6 +23,8 @@ public class MethodCallStatement extends GlslStatement {
 
     @Override
     public void asString(StringBuilder builder, int indentLevel) {
-        builder.append("\t".repeat(indentLevel)).append(value).append(";");
+        builder.append("\t".repeat(indentLevel));
+        value.asString(builder);
+        builder.append(";");
     }
 }

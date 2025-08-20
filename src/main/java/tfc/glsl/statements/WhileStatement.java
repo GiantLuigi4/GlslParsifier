@@ -33,7 +33,7 @@ public class WhileStatement extends GlslStatement {
     @Override
     public void asString(StringBuilder builder, int indentLevel) {
         builder.append("\t".repeat(indentLevel)).append("while (");
-        builder.append(condition);
+        condition.asString(builder);
         builder.append(") {\n");
         for (GlslStatement glslStatement : block) {
             glslStatement.asString(builder, indentLevel+1);

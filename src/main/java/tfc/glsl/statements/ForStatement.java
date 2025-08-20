@@ -68,7 +68,14 @@ public class ForStatement extends GlslStatement {
 
     @Override
     public void asString(StringBuilder builder, int indentLevel) {
-        builder.append("\t".repeat(indentLevel)).append("for (").append(toStr(varDef, true)).append(" ").append(toStr(comparison, true)).append(" ").append(toStr(increment, false)).append(") {\n");
+        builder.append("\t".repeat(indentLevel)).append("for (");
+        builder.append(toStr(varDef.asString(), true));
+        builder.append(" ");
+        builder.append(toStr(comparison.asString(), true));
+        builder.append(" ");
+        builder.append(toStr(increment.asString(), false));
+        builder.append(") {\n");
+
         for (GlslStatement glslStatement : body) {
             glslStatement.asString(builder, indentLevel + 1);
             builder.append("\n");

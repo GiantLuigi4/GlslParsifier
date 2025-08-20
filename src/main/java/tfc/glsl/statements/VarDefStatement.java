@@ -39,7 +39,8 @@ public class VarDefStatement extends GlslStatement {
         builder.append("\t".repeat(indentLevel));
         builder.append(var);
         if (value != null) {
-            builder.append(" = ").append(value);
+            builder.append(" = ");
+            value.asString(builder);
         }
         builder.append(";");
     }

@@ -35,6 +35,8 @@ public class IncStatement extends GlslStatement  {
 
     @Override
     public void asString(StringBuilder builder, int indentLevel) {
-        builder.append("\t".repeat(indentLevel)).append(ref).append(operation).append(";");
+        builder.append("\t".repeat(indentLevel));
+        ref.asString(builder);
+        builder.append(operation).append(";");
     }
 }

@@ -38,7 +38,7 @@ public class DoWhileStatement extends GlslStatement {
             builder.append("\n");
         }
         builder.append("\t".repeat(indentLevel)).append("} while (");
-        builder.append(condition);
+        condition.asString(builder);
         builder.append(");");
     }
 }

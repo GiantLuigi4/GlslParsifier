@@ -57,9 +57,9 @@ public class ConditionalStatement extends GlslStatement {
                     builder.append(" if ");
             }
             if (conditionalCode.condition != null) {
-                builder.append("(")
-                        .append(conditionalCode.condition)
-                        .append(")");
+                builder.append("(");
+                conditionalCode.condition.asString(builder);
+                builder.append(")");
             }
 
             builder.append(" {\n");
