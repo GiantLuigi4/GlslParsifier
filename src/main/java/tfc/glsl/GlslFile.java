@@ -24,7 +24,7 @@ public class GlslFile {
 
         int len = segments.size();
         for (int i = 0; i < len; i++) {
-            builder.append(segments.get(i));
+            segments.get(i).asString(builder);
             if (i != len - 1) {
                 builder.append("\n\n");
             }

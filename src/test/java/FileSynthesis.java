@@ -1,7 +1,5 @@
 import tfc.glsl.GlslFile;
 import tfc.glsl.base.GlslStatement;
-import tfc.glsl.meta.LayoutQualifier;
-import tfc.glsl.meta.Member;
 import tfc.glsl.meta.VarSpecifier;
 import tfc.glsl.segments.*;
 import tfc.glsl.meta.enums.StorageQualifier;

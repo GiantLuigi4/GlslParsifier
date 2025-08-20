@@ -70,8 +70,7 @@ public class GlslCodeSegment extends GlslSegment {
     }
 
     @Override
-    public String asString() {
-        StringBuilder builder = new StringBuilder();
+    public void asString(StringBuilder builder) {
         for (String qualifier : qualifiers) {
             builder.append(qualifier).append(" ");
         }
@@ -94,7 +93,5 @@ public class GlslCodeSegment extends GlslSegment {
             builder.append("\n");
         }
         builder.append("}");
-
-        return builder.toString();
     }
 }

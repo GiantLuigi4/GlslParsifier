@@ -35,12 +35,13 @@ public class MethodCallValue extends GlslValue {
 
     @Override
     public void asString(StringBuilder builder) {
-        builder.append(name).append("(");
+        name.asString(builder);
+        builder.append("(");
 
         if (params != null) {
             int len = params.length;
             for (int i = 0; i < len; i++) {
-                builder.append(params[i]);
+                params[i].asString(builder);
                 if (i != len - 1) {
                     builder.append(", ");
                 }

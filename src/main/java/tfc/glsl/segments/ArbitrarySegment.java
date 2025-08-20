@@ -22,7 +22,7 @@ public class ArbitrarySegment extends GlslSegment {
     }
 
     @Override
-    public String asString() {
-        return text;
+    public void asString(StringBuilder builder) {
+        builder.append(text);
     }
 }

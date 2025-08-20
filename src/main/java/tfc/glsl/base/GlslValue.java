@@ -21,6 +21,7 @@ public abstract class GlslValue {
 
     @Override
     public String toString() {
-        return asString();
+//        return asString();
+        throw new RuntimeException();
     }
 }

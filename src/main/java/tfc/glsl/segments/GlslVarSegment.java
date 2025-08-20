@@ -45,17 +45,18 @@ public class GlslVarSegment extends GlslSegment {
     }
 
     @Override
-    public String asString() {
+    public void asString(StringBuilder builder) {
         if (value != null || qualifier != null) {
-            StringBuilder builder = new StringBuilder();
             if (qualifier != null)
                 builder.append(qualifier).append(" ");
             builder.append(var);
-            if (value != null)
-                builder.append(" = ").append(value);
+            if (value != null) {
+                builder.append(" = ");
+                value.asString(builder);
+            }
             builder.append(";");
-            return builder.toString();
+            return;
         }
-        return var + ";";
+        builder.append(var).append(";");
     }
 }

@@ -48,9 +48,11 @@ public class GlslMemberSegment extends GlslSegment {
     }
 
     @Override
-    public String asString() {
-        if (member.getLayout() != null)
-            return member.getLayout() + " " + qualifier.getTypeName() + " " + member.getVar() + ";";
-        return qualifier.getTypeName() + " " + member.getVar() + ";";
+    public void asString(StringBuilder builder) {
+        if (member.getLayout() != null) {
+            builder.append(member.getLayout()).append(" ").append(qualifier.getTypeName()).append(" ").append(member.getVar()).append(";");
+            return;
+        }
+        builder.append(qualifier.getTypeName()).append(" ").append(member.getVar()).append(";");
     }
 }

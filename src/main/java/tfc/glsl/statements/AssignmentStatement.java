@@ -1,4 +1,4 @@
-package tfc.glsl.segments;
+package tfc.glsl.statements;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -54,9 +54,19 @@ public class AssignmentStatement extends GlslStatement {
     @Override
     public void asString(StringBuilder builder, int indentLevel) {
         if (auxiliaryOp != null) {
-            builder.append("\t".repeat(indentLevel)).append(ref).append(" ").append(auxiliaryOp).append("= ").append(value).append(";");
+            builder.append("\t".repeat(indentLevel));
+            ref.asString(builder);
+            builder.append(" ");
+            builder.append(auxiliaryOp);
+            builder.append("= ");
+            value.asString(builder);
+            builder.append(";");
             return;
         }
-        builder.append("\t".repeat(indentLevel)).append(ref).append(" = ").append(value).append(";");
+        builder.append("\t".repeat(indentLevel));
+        ref.asString(builder);
+        builder.append(" = ");
+        value.asString(builder);
+        builder.append(";");
     }
 }

@@ -81,8 +81,7 @@ public class GlslBlockSegment extends GlslSegment {
     }
 
     @Override
-    public String asString() {
-        StringBuilder builder = new StringBuilder();
+    public void asString(StringBuilder builder) {
         if (layout != null) builder.append(layout).append(" ");
         if (qualifiers != null) {
             for (String qualifier : qualifiers) {
@@ -92,13 +91,11 @@ public class GlslBlockSegment extends GlslSegment {
         builder.append(type.getTypeName()).append(" ");
         if (name != null) builder.append(name).append(" ");
         builder.append("{\n");
-        // TODO: members
         for (Member member : members) {
             builder.append("\t").append(member).append(";\n");
         }
         builder.append("}");
         if (instance != null) builder.append(" ").append(instance);
         builder.append(";");
-        return builder.toString();
     }
 }

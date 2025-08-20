@@ -14,7 +14,6 @@ import tfc.glsl.value.*;
 
 import java.io.FileOutputStream;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class UberGlslGenerator {
     // Configuration constants

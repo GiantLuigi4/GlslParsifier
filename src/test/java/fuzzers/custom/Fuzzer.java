@@ -7,7 +7,7 @@ import tfc.glsl.base.GlslValue;
 import tfc.glsl.meta.Parameter;
 import tfc.glsl.meta.VarSpecifier;
 import tfc.glsl.meta.enums.StorageQualifier;
-import tfc.glsl.segments.AssignmentStatement;
+import tfc.glsl.statements.AssignmentStatement;
 import tfc.glsl.segments.GlslCodeSegment;
 import tfc.glsl.segments.GlslMemberSegment;
 import tfc.glsl.segments.GlslVarSegment;

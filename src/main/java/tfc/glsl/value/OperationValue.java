@@ -48,6 +48,12 @@ public class OperationValue extends GlslValue {
 //            return noParen();
 //        }
 
-        builder.append("(").append(left).append(" ").append(op).append(" ").append(right).append(")");
+        builder.append("(");
+        left.asString(builder);
+        builder.append(" ")
+                .append(op)
+                .append(" ");
+        right.asString(builder);
+        builder.append(")");
     }
 }

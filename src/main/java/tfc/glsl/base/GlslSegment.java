@@ -11,10 +11,17 @@ public abstract class GlslSegment {
         return type;
     }
 
-    public abstract String asString();
+    public abstract void asString(StringBuilder builder);
+
+    public String asString() {
+        StringBuilder builder = new StringBuilder();
+        asString(builder);
+        return builder.toString();
+    }
 
     @Override
     public String toString() {
-        return asString();
+//        return asString();
+        throw new RuntimeException();
     }
 }
