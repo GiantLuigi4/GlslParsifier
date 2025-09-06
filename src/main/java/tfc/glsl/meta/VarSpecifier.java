@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 public class VarSpecifier {
     @NotNull String type;
     @NotNull String name;
-    @Nullable String arrayData;
+    @Nullable ArraySpecifier array;
 
     public VarSpecifier(@NotNull String type, @NotNull String name) {
         this.type = type;
@@ -23,8 +23,8 @@ public class VarSpecifier {
         return this;
     }
 
-    public VarSpecifier setArrayData(@NotNull String arrayData) {
-        this.arrayData = arrayData;
+    public VarSpecifier setArray(ArraySpecifier array) {
+        this.array = array;
         return this;
     }
 
@@ -36,14 +36,14 @@ public class VarSpecifier {
         return name;
     }
 
-    public String getArrayData() {
-        return arrayData;
+    public ArraySpecifier getArray() {
+        return array;
     }
 
     @Override
     public String toString() {
-        if (arrayData != null)
-            return type + " " + name + arrayData;
+        if (array != null)
+            return type + array + " " + name;
         return type + " " + name;
     }
 }

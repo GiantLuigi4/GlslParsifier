@@ -7,7 +7,7 @@ public enum StorageQualifier {
     IN("in"),
     OUT("out"),
     VARYING("varying"),
-    ;
+    ATTRIBUTE("attribute");
 
     private final String typeName;
 

@@ -605,6 +605,7 @@ public class Fuzzer {
         int funcs = randRange(MIN_FUNCTIONS, MAX_FUNCTIONS);
         for (int i = 0; i < funcs; i++) {
             file.addSegment(generateFunction());
+            System.gc();
         }
     }
 
@@ -708,6 +709,7 @@ public class Fuzzer {
 
     public static void main(String[] args) {
         Fuzzer fuzzer = new Fuzzer();
+        System.out.println("Running");
         fuzzer.generate();
         fuzzer.saveToFile("fuzzed.glsl");
     }
