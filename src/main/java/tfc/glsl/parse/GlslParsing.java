@@ -1,5 +1,6 @@
 package tfc.glsl.parse;
 
+import tfc.glsl.util.Pair;
 import tfc.glsl.util.StringReader;
 
 import java.util.*;
@@ -8,6 +9,7 @@ class GlslParsing {
     static final PrefixChecker<TokenType> checker = new PrefixChecker<>();
 
     private static final Map<Character, GlslToken> specialTokens = new HashMap<>();
+    private static final List<Pair<String, GlslToken>> dualSymbolOps = new ArrayList<>();
 
     static {
         for (TokenType value : TokenType.values()) {
@@ -20,6 +22,24 @@ class GlslParsing {
             specialTokens.put(chr, new GlslToken(
                     TokenType.SYMBOL,
                     String.valueOf(chr)
+            ));
+        }
+        String[] ops = new String[] {
+                "+=",
+                "-=",
+                "/=",
+                "*=",
+                "||",
+                "&&",
+                "!=",
+                "==",
+        };
+        for (String op : ops) {
+            dualSymbolOps.add(Pair.of(
+                    op, new GlslToken(
+                            TokenType.OPERATOR,
+                            op
+                    )
             ));
         }
     }
@@ -89,20 +109,35 @@ class GlslParsing {
             return Collections.singletonList(type.singletonToken);
         }
 
-        char c = reader.charAt(0);
-        GlslToken special = getSpecial(c);
-        if (special != null) {
-            reader.advance();
-            return Collections.singletonList(special);
+        for (Pair<String, GlslToken> dualSymbolOp : dualSymbolOps) {
+            if (reader.startsWith(dualSymbolOp.getFirst())) {
+                reader.skip(2);
+                return Collections.singletonList(dualSymbolOp.getSecond());
+            }
         }
 
+        char c = reader.charAt(0);
+        GlslToken special;
+        if  (c == '.' && Character.isDigit(reader.peek(1))) {
+        } else {
+            special = getSpecial(c);
+            if (special != null) {
+                reader.advance();
+                return Collections.singletonList(special);
+            }
+        }
+
+        boolean readingNumber = false;
         int start = reader.index();
+        if (Character.isDigit(c)) readingNumber = true;
         while (!Character.isWhitespace(c)) {
             reader.advance();
             c = reader.peek();
-            special = getSpecial(c);
-            if (special != null) {
-                break;
+            if (!readingNumber || c != '.') {
+                special = getSpecial(c);
+                if (special != null) {
+                    break;
+                }
             }
         }
 

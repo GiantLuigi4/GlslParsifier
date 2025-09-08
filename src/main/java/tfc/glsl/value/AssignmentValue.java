@@ -53,9 +53,14 @@ public class AssignmentValue extends GlslValue {
     @Override
     public void asString(StringBuilder builder) {
         if (auxiliaryOp != null) {
-            builder.append(ref).append(" ").append(auxiliaryOp).append("= ").append(value);
+            ref.asString(builder);
+            builder.append(" ").append(auxiliaryOp).append("= ");
+            value.asString(builder);
             return;
         }
-        builder.append(ref).append(" = ").append(value);
+//        builder.append(ref).append(" = ").append(value);
+        ref.asString(builder);
+        builder.append(" = ");
+        value.asString(builder);
     }
 }

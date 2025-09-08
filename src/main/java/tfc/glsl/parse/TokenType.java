@@ -29,7 +29,7 @@ public enum TokenType {
     EOS(null),
     LITERAL(null),
     SYMBOL(null),
-    ;
+    OPERATOR(null);
 
     String text;
     GlslToken singletonToken;

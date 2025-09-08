@@ -34,6 +34,9 @@ public class AccessMemberValue extends GlslValue {
 
     @Override
     public void asString(StringBuilder builder) {
-        builder.append(object).append(".").append(member);
+//        builder.append(object).append(".").append(member);
+        object.asString(builder);
+        builder.append('.');
+        member.asString(builder);
     }
 }

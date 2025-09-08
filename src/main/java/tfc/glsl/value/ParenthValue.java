@@ -23,6 +23,9 @@ public class ParenthValue extends GlslValue {
 
     @Override
     public void asString(StringBuilder builder) {
-        builder.append("(").append(value).append(")");
+//        builder.append("(").append(value).append(")");
+        builder.append('(');
+        value.asString(builder);
+        builder.append(')');
     }
 }

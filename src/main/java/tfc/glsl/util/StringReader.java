@@ -18,6 +18,11 @@ public class StringReader {
         return text.charAt(cursor);
     }
 
+    public char peek(int i) {
+        if (cursor + i > len) return 0;
+        return text.charAt(cursor + i);
+    }
+
     public void advance() {
         cursor++;
     }

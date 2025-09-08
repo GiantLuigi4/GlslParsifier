@@ -22,9 +22,12 @@ public class UnaryOperation extends GlslValue {
                         value.getValueType() == ValueType.REFERENCE ||
                         value.getValueType() == ValueType.FUNCTION
         ) {
-            builder.append(op).append("(").append(value).append(")");
+            builder.append(op).append("(");
+            value.asString(builder);
+            builder.append(")");
             return;
         }
-        builder.append(op).append(value);
+        builder.append(op);
+        value.asString(builder);
     }
 }

@@ -9,7 +9,9 @@ public class ParserTest {
                 layout (std140, binding = 0) uniform float x;
                 
                 void main() {
-                    gl_Position = vec4(x);
+                    gl_ClipDistance[0] = (pos.yzx.xzy[0].xxx);
+                    gl_Position = q *= vec4(x, x, x, x);
+                    vec4(3);
                 }
                 """);
     }

@@ -10,7 +10,7 @@ public class MethodCallValue extends GlslValue {
     @Nullable GlslValue[] params;
 
     public MethodCallValue(@NotNull GlslValue object, @Nullable GlslValue... params) {
-        super(ValueType.ACCESS_ARRAY);
+        super(ValueType.FUNCTION);
         this.name = object;
         this.params = params;
     }

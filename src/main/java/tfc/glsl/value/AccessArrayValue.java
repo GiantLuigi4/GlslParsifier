@@ -34,6 +34,10 @@ public class AccessArrayValue extends GlslValue {
 
     @Override
     public void asString(StringBuilder builder) {
-        builder.append(object).append("[").append(access).append("]");
+//        builder.append(object).append("[").append(access).append("]");
+        object.asString(builder);
+        builder.append('[');
+        access.asString(builder);
+        builder.append(']');
     }
 }
