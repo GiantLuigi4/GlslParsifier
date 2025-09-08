@@ -165,7 +165,7 @@ public class GlslTreeifier {
                 streamer.advance();
                 return new UnaryOperation(
                         "-",
-                        nextValue(streamer)
+                        nextValueNoExpr(streamer)
                 );
             }
         }
@@ -176,7 +176,7 @@ public class GlslTreeifier {
         return value;
     }
 
-    private static GlslValue nextValue(TokenStreamer streamer) {
+    private static GlslValue nextValueNoExpr(TokenStreamer streamer) {
 //        throw new RuntimeException("NYI");
 
 //        ((new int[2][2])[0] = new int[5])[0] = 2;
@@ -208,6 +208,10 @@ public class GlslTreeifier {
         }
 
         return value;
+    }
+
+    private static GlslValue nextValue(TokenStreamer streamer) {
+        return nextValueNoExpr(streamer);
     }
 
     private static ArraySpecifier nextArraySpecifier(TokenStreamer streamer) {
@@ -382,13 +386,13 @@ public class GlslTreeifier {
             }
             default -> {
                 int index = streamer.index();
-                GlslValue value = nextValue(streamer);
+                GlslValue value = nextValueNoExpr(streamer);
                 if (
                         value.getValueType() == ValueType.ASSIGNMENT
                 ) {
                     return new AssignmentStatement(
-                            ((AssignmentValue) value).getValue(),
-                            ((AssignmentValue) value).getRef()
+                            ((AssignmentValue) value).getRef(),
+                            ((AssignmentValue) value).getValue()
                     ).setAuxiliaryOp(((AssignmentValue) value).getAuxiliaryOp());
                 } else if (value.getValueType() == ValueType.FUNCTION) {
                     return new MethodCallStatement(
@@ -444,12 +448,13 @@ public class GlslTreeifier {
         streamer.advance();
 
         while (!streamer.current().is('}')) {
-            while (streamer.current().is(';')) {
-                streamer.advance();
-            }
+            popSemis(streamer);
+            if (streamer.current().is('}'))
+                break;
 
             codeSegment.addStatement(nextStatement(streamer));
         }
+        streamer.advance();
 
         return codeSegment;
     }
