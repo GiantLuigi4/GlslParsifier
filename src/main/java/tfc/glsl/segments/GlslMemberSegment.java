@@ -1,16 +1,22 @@
 package tfc.glsl.segments;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import tfc.glsl.base.GlslSegment;
+import tfc.glsl.base.GlslValue;
 import tfc.glsl.base.SegmentType;
 import tfc.glsl.meta.LayoutQualifier;
 import tfc.glsl.meta.Member;
 import tfc.glsl.meta.VarSpecifier;
 import tfc.glsl.meta.enums.StorageQualifier;
 
+import java.util.List;
+
 public class GlslMemberSegment extends GlslSegment {
+    @Nullable List<String> modifiers;
     @NotNull StorageQualifier qualifier;
     @NotNull Member member;
+    @Nullable GlslValue value;
 
     public GlslMemberSegment(@NotNull StorageQualifier qualifier, @NotNull Member member) {
         super(SegmentType.MEMBER_DEF);
@@ -47,12 +53,47 @@ public class GlslMemberSegment extends GlslSegment {
         return this;
     }
 
+    public List<String> getModifiers() {
+        return modifiers;
+    }
+
+    public GlslMemberSegment setModifiers(List<String> modifiers) {
+        this.modifiers = modifiers;
+        return this;
+    }
+
+    public GlslValue getValue() {
+        return value;
+    }
+
+    public GlslMemberSegment setValue(GlslValue value) {
+        this.value = value;
+        return this;
+    }
+
     @Override
     public void asString(StringBuilder builder) {
+        StringBuilder varModifiers = new StringBuilder();
+        if (modifiers != null) {
+            for (String modifier : modifiers) {
+                varModifiers.append(modifier).append(" ");
+            }
+        }
+
         if (member.getLayout() != null) {
-            builder.append(member.getLayout()).append(" ").append(qualifier.getTypeName()).append(" ").append(member.getVar()).append(";");
+            builder.append(varModifiers).append(member.getLayout()).append(" ").append(qualifier.getTypeName()).append(" ").append(member.getVar());
+            if (value != null) {
+                builder.append(" = ");
+                value.asString(builder);
+            }
+            builder.append(";");
             return;
         }
-        builder.append(qualifier.getTypeName()).append(" ").append(member.getVar()).append(";");
+        builder.append(varModifiers).append(qualifier.getTypeName()).append(" ").append(member.getVar());
+        if (value != null) {
+            builder.append(" = ");
+            value.asString(builder);
+        }
+        builder.append(";");
     }
 }

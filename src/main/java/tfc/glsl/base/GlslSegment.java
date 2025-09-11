@@ -1,5 +1,9 @@
 package tfc.glsl.base;
 
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+
 public abstract class GlslSegment {
     private final SegmentType type;
 

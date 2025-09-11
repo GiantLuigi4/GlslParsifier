@@ -187,6 +187,14 @@ public class GlslTreeifier {
                 );
                 return value;
             }
+            case "!" -> {
+                streamer.advance();
+                GlslValue value = new UnaryOperation(
+                        "!",
+                        nextValueNoExpr(streamer)
+                );
+                return value;
+            }
             case "~" -> {
                 streamer.advance();
                 GlslValue value = new UnaryOperation(
@@ -319,9 +327,18 @@ public class GlslTreeifier {
         );
     }
 
+    private static VarSpecifier nextVarSpecifierFull(TokenStreamer streamer) {
+        List<String> attributes = new ArrayList<>();
+        while (streamer.current().is(TokenGroup.ATTRIBUTE)) {
+            attributes.add(streamer.current().string());
+            streamer.advance();
+        }
+        return nextVarSpecifier(streamer).setModifiers(attributes);
+    }
+
     private static Member nextMember(TokenStreamer streamer) {
         Member member = new Member(
-                nextVarSpecifier(streamer)
+                nextVarSpecifierFull(streamer)
         );
         // TODO: attribute qualifiers?
         // TODO: default values?
@@ -362,11 +379,8 @@ public class GlslTreeifier {
         return segment;
     }
 
-    private static GlslSegment nextStorage(TokenStreamer streamer) {
-        GlslToken storage = streamer.current();
-        streamer.advance();
-        TokenType type = storage.type();
-        StorageQualifier qualifier = switch (type) {
+    private static StorageQualifier asQualifier(TokenType type) {
+        return switch (type) {
             case UNIFORM -> StorageQualifier.UNIFORM;
             case IN -> StorageQualifier.IN;
             case OUT -> StorageQualifier.OUT;
@@ -376,6 +390,13 @@ public class GlslTreeifier {
             case ATTRIBUTE -> StorageQualifier.ATTRIBUTE;
             default -> throw new ParseException("Unexpected symbol");
         };
+    }
+
+    private static GlslSegment nextStorage(TokenStreamer streamer) {
+        GlslToken storage = streamer.current();
+        streamer.advance();
+        TokenType type = storage.type();
+        StorageQualifier qualifier = asQualifier(type);
 
         GlslToken current = streamer.current();
         boolean isBlock = false;
@@ -569,7 +590,7 @@ public class GlslTreeifier {
                 streamer.setIndex(index);
 
                 {
-                    VarSpecifier varSpec = nextVarSpecifier(streamer);
+                    VarSpecifier varSpec = nextVarSpecifierFull(streamer);
 
                     GlslToken token1 = streamer.current();
 
@@ -678,8 +699,20 @@ public class GlslTreeifier {
         );
         streamer.advance();
         while (!streamer.current().is(')')) {
-            VarSpecifier varSpec = nextVarSpecifier(streamer);
-            codeSegment.addParam(new Parameter(varSpec));
+            List<String> attributes = new ArrayList<>();
+            while (streamer.current().is(TokenGroup.ATTRIBUTE)) {
+                attributes.add(streamer.current().string());
+                streamer.advance();
+            }
+
+            StorageQualifier qualifier = null;
+            if (streamer.current().is(TokenGroup.STORAGE_TYPE)) {
+                qualifier = asQualifier(streamer.current().type());
+                streamer.advance();
+            }
+
+            VarSpecifier varSpec = nextVarSpecifier(streamer).setModifiers(attributes);
+            codeSegment.addParam(new Parameter(varSpec).setQualifier(qualifier));
             if (streamer.current().is(','))
                 streamer.advance();
         }
@@ -698,14 +731,14 @@ public class GlslTreeifier {
     private static GlslSegment nextSegment(TokenStreamer streamer) {
         popSemis(streamer);
         LayoutQualifier layoutQualif = null;
-        List<GlslToken> attributes = new ArrayList<>();
+        List<String> attributes = new ArrayList<>();
         while (true) {
             GlslToken current = streamer.current();
 
 //            GlslSegment segment = trySegment(streamer);
 
             if (current.is(TokenGroup.ATTRIBUTE)) {
-                attributes.add(current);
+                attributes.add(current.string());
                 streamer.advance();
             } else if (current.is(TokenGroup.STORAGE_TYPE)) {
                 GlslSegment segment = nextStorage(streamer);
@@ -714,8 +747,13 @@ public class GlslTreeifier {
                         ((GlslBlockSegment) segment).setLayout(layoutQualif);
                         break;
                     case MEMBER_DEF:
+                        ((GlslMemberSegment) segment).setModifiers(attributes);
                         ((GlslMemberSegment) segment).setLayout(layoutQualif);
-                        // TODO: attribute qualifiers
+
+                        if (streamer.current().is('=')) {
+                            streamer.advance();
+                            ((GlslMemberSegment) segment).setValue(nextValue(streamer));
+                        }
                         break;
 
                     default:
@@ -727,6 +765,8 @@ public class GlslTreeifier {
                 layoutQualif = layout(streamer);
             } else {
                 VarSpecifier specifier = nextVarSpecifier(streamer);
+                specifier.setModifiers(attributes);
+
                 if (streamer.current().is('(')) {
                     return nextFunction(specifier, streamer);
                 } else if (streamer.current().is(';')) {
