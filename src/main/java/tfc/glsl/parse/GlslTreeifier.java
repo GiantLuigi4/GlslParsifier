@@ -159,6 +159,18 @@ public class GlslTreeifier {
         return value;
     }
 
+    private static GlslValue nextTernary(GlslValue value, TokenStreamer streamer) {
+        streamer.advance(); // pop ?
+        GlslValue valueA = nextValue(streamer);
+        if (!streamer.current().is(':'))
+            throw new ParseException("Unexpected symbol");
+        streamer.advance();
+
+        GlslValue valueB = nextValue(streamer);
+
+        return new TernaryValue(value, valueA, valueB);
+    }
+
     private static GlslValue nextInnerValue(TokenStreamer streamer) {
         switch (streamer.current().string()) {
             case "(" -> {
@@ -175,17 +187,25 @@ public class GlslTreeifier {
                 );
                 return value;
             }
+            case "~" -> {
+                streamer.advance();
+                GlslValue value = new UnaryOperation(
+                        "~",
+                        nextValueNoExpr(streamer)
+                );
+                return value;
+            }
             case "++" -> {
                 streamer.advance();
                 return new IncValue(
-                        nextMonoTokenValue(streamer),
+                        nextValueNoExpr(streamer),
                         "++"
                 ).setPreIncrement(true);
             }
             case "--" -> {
                 streamer.advance();
                 return new IncValue(
-                        nextMonoTokenValue(streamer),
+                        nextValueNoExpr(streamer),
                         "--"
                 ).setPreIncrement(true);
             }
@@ -253,9 +273,15 @@ public class GlslTreeifier {
 
     private static GlslValue nextValue(TokenStreamer streamer) {
 //        return nextValueNoExpr(streamer);
-        return ExpressionParser.doParse(
+        GlslValue value = ExpressionParser.doParse(
                 streamer, () -> nextValueNoExpr(streamer)
         );
+
+        if (streamer.current().is('?')) {
+            value = nextTernary(value, streamer);
+        }
+
+        return value;
     }
 
     private static ArraySpecifier nextArraySpecifier(TokenStreamer streamer) {
@@ -319,7 +345,7 @@ public class GlslTreeifier {
         }
         GlslToken current = streamer.current();
         while (!current.is('}')) {
-            nextMember(streamer);
+            segment.addMember(nextMember(streamer));
             popSemis(streamer);
             current = streamer.current();
         }
@@ -388,6 +414,9 @@ public class GlslTreeifier {
             case '+', '-', '/', '*' -> {
                 return true;
             }
+            case '|', '&', '^' -> {
+                return true;
+            }
             default -> {
                 return false;
             }
@@ -420,11 +449,13 @@ public class GlslTreeifier {
 
         ForStatement forSt = new ForStatement(vd, comparison, incr);
 
-        if (!streamer.current().is('{'))
-            throw new ParseException("Unexpected symbol");
-        streamer.advance();
-
-        nextBody(streamer, forSt::addStatement);
+        if (!streamer.current().is('{')) {
+            forSt.addStatement(nextStatement(streamer));
+            streamer.advance();
+        } else {
+            streamer.advance();
+            nextBody(streamer, forSt::addStatement);
+        }
 
         return forSt;
     }
@@ -455,12 +486,15 @@ public class GlslTreeifier {
 
     private static GlslStatement nextDo(TokenStreamer streamer) {
         streamer.advance(); // pop "do"
-        if (!streamer.current().is('{'))
-            throw new ParseException("Unexpected symbol");
-        streamer.advance();
-
         DoWhileStatement statement = new DoWhileStatement(PLACEHOLDER_TRUE);
-        nextBody(streamer, statement::addStatement);
+
+        if (!streamer.current().is('{')) {
+            statement.addStatement(nextStatement(streamer));
+            streamer.advance();
+        } else {
+            streamer.advance();
+            nextBody(streamer, statement::addStatement);
+        }
 
         if (!streamer.current().is("while"))
             throw new ParseException("Unexpected symbol");
@@ -496,9 +530,11 @@ public class GlslTreeifier {
                 return nextWhile(streamer);
             }
             case CONTINUE -> {
+                streamer.advance();
                 return ContinueStatement.INSTANCE;
             }
             case BREAK -> {
+                streamer.advance();
                 return BreakStatement.INSTANCE;
             }
             case RETURN -> {
@@ -573,10 +609,14 @@ public class GlslTreeifier {
         ConditionalStatement.ConditionalCode conditionalCode = new ConditionalStatement.ConditionalCode(
                 condition
         );
-        if (!streamer.current().is("{"))
-            throw new ParseException("Unexpected symbol");
-        streamer.advance();
-        nextBody(streamer, conditionalCode::addStatement);
+
+        if (!streamer.current().is("{")) {
+            conditionalCode.addStatement(nextStatement(streamer));
+            streamer.advance();
+        } else {
+            streamer.advance();
+            nextBody(streamer, conditionalCode::addStatement);
+        }
 
         statement.addStep(conditionalCode);
 
@@ -602,8 +642,13 @@ public class GlslTreeifier {
                         null
                 );
             }
-            streamer.advance();
-            nextBody(streamer, conditionalCode::addStatement);
+            if (streamer.current().is('{')) {
+                streamer.advance();
+                nextBody(streamer, conditionalCode::addStatement);
+            } else {
+                conditionalCode.addStatement(nextStatement(streamer));
+                streamer.advance();
+            }
 
             statement.addStep(conditionalCode);
         }
@@ -661,6 +706,7 @@ public class GlslTreeifier {
 
             if (current.is(TokenGroup.ATTRIBUTE)) {
                 attributes.add(current);
+                streamer.advance();
             } else if (current.is(TokenGroup.STORAGE_TYPE)) {
                 GlslSegment segment = nextStorage(streamer);
                 switch (segment.getSegmentType()) {

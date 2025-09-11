@@ -42,8 +42,11 @@ public class VarSpecifier {
 
     @Override
     public String toString() {
-        if (array != null)
-            return type + array + " " + name;
+        if (array != null) {
+            StringBuilder builder = new StringBuilder();
+            array.asString(builder);
+            return type + builder + " " + name;
+        }
         return type + " " + name;
     }
 }

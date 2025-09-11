@@ -6,7 +6,9 @@ public class ParserTest1 {
         GlslParser parser = new GlslParser();
         GlslFile file = parser.parse("""
                 #version 330 core
-                                
+                
+                // this is a comment
+                
                 layout(std140, binding = 0) uniform TransformBlock {
                     mat4 model;
                     mat4 view;

@@ -12,8 +12,16 @@ public class ArraySpecifier {
         this.values = values;
     }
 
+    public void asString(StringBuilder builder) {
+        for (GlslValue value : values) {
+            builder.append('[');
+            value.asString(builder);
+            builder.append(']');
+        }
+    }
+
     @Override
     public String toString() {
-        return super.toString();
+        throw new RuntimeException();
     }
 }

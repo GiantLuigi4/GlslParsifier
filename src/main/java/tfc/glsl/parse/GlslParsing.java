@@ -29,6 +29,9 @@ class GlslParsing {
                 "-=",
                 "/=",
                 "*=",
+                "^=",
+                "&=",
+                "|=",
                 "||",
                 "&&",
                 "!=",
@@ -83,6 +86,7 @@ class GlslParsing {
 
     private static List<GlslToken> parseToken(StringReader reader) {
         reader.skipWS();
+        popComments(reader);
 
         if (reader.isEmpty()) {
             return Collections.singletonList(TokenType.EOS.singletonToken);

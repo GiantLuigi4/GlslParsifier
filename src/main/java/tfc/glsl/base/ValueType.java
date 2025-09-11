@@ -11,5 +11,5 @@ public enum ValueType {
     ACCESS_MEMBER,
     ACCESS_ARRAY,
     BOOLEAN,
-    INC,
+    INC, TERNARY,
 }
