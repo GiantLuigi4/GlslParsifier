@@ -159,14 +159,18 @@ class GlslParsing {
         boolean readingNumber = false;
         int start = reader.index();
         if (Character.isDigit(c)) readingNumber = true;
+        char pc = 0;
         while (!Character.isWhitespace(c)) {
             reader.advance();
             if (reader.isEmpty()) {
                 break;
             }
 
+            pc = c;
             c = reader.peek();
             if (!readingNumber || c != '.') {
+                if (pc == 'E' && c == '-') continue;
+
                 special = getSpecial(c);
                 if (special != null) {
                     break;

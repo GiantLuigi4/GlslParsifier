@@ -13,6 +13,7 @@ public enum TokenType {
     FLOAT("float"), BOOL("bool"),
 
     CONST("const"),
+    READONLY("readonly"),
 
     FLAT("flat"), NO_PERSPECTIVE("noperspective"),
     CENTROID("centroid"), SMOOTH("smooth"),

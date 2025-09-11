@@ -19,7 +19,8 @@ public enum TokenGroup {
             TokenType.SMOOTH,
             TokenType.NO_PERSPECTIVE,
             TokenType.CENTROID,
-            TokenType.CONST
+            TokenType.CONST,
+            TokenType.READONLY
     ),
     TYPE(
             TokenType.FLOAT,

@@ -3,6 +3,7 @@ package tfc.glsl.meta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class VarSpecifier {
@@ -86,5 +87,19 @@ public class VarSpecifier {
             return type + builder + " " + name;
         }
         return type + " " + name;
+    }
+
+    public VarSpecifier template() {
+        VarSpecifier res = new VarSpecifier(
+                type, name
+        );
+        if (array != null) {
+            res.setArray(array.template());
+        }
+        if (modifiers != null) {
+            List<String> cpy = new ArrayList<>(modifiers);
+            res.setModifiers(cpy);
+        }
+        return res;
     }
 }

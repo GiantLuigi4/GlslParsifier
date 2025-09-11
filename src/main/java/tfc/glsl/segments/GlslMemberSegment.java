@@ -10,6 +10,7 @@ import tfc.glsl.meta.Member;
 import tfc.glsl.meta.VarSpecifier;
 import tfc.glsl.meta.enums.StorageQualifier;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GlslMemberSegment extends GlslSegment {
@@ -95,5 +96,17 @@ public class GlslMemberSegment extends GlslSegment {
             value.asString(builder);
         }
         builder.append(";");
+    }
+
+    public GlslMemberSegment template() {
+        GlslMemberSegment memberSegment = new GlslMemberSegment(
+                qualifier, member.template()
+        );
+        if (modifiers != null) {
+            List<String> cpy = new ArrayList<>(modifiers);
+            memberSegment.setModifiers(cpy);
+        }
+        memberSegment.setValue(value);
+        return memberSegment;
     }
 }

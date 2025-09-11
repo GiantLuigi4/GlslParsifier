@@ -36,4 +36,8 @@ public class Member {
         builder.append(var);
         return builder.toString();
     }
+
+    public Member template() {
+        return new Member(var.template()).setLayout(layout);
+    }
 }

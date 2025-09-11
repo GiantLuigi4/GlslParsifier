@@ -3,6 +3,7 @@ package tfc.glsl.meta;
 import org.jetbrains.annotations.NotNull;
 import tfc.glsl.base.GlslValue;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ArraySpecifier {
@@ -15,7 +16,9 @@ public class ArraySpecifier {
     public void asString(StringBuilder builder) {
         for (GlslValue value : values) {
             builder.append('[');
-            value.asString(builder);
+            if (value != null) {
+                value.asString(builder);
+            }
             builder.append(']');
         }
     }
@@ -23,5 +26,10 @@ public class ArraySpecifier {
     @Override
     public String toString() {
         throw new RuntimeException();
+    }
+
+    public ArraySpecifier template() {
+        List<GlslValue> cpy = new ArrayList<>(values);
+        return new ArraySpecifier(cpy);
     }
 }

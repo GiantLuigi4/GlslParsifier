@@ -16,6 +16,7 @@ import tfc.glsl.statements.*;
 import tfc.glsl.value.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -296,7 +297,11 @@ public class GlslTreeifier {
         List<GlslValue> values = new ArrayList<>();
         while (streamer.current().is('[')) {
             streamer.advance();
-            values.add(nextValue(streamer));
+            if (streamer.current().is(']')) {
+                values.add(null);
+            } else {
+                values.add(nextValue(streamer));
+            }
             streamer.advance();
         }
         if (values.isEmpty()) return null;
@@ -728,7 +733,7 @@ public class GlslTreeifier {
         return codeSegment;
     }
 
-    private static GlslSegment nextSegment(TokenStreamer streamer) {
+    private static List<GlslSegment> nextSegment(TokenStreamer streamer) {
         popSemis(streamer);
         LayoutQualifier layoutQualif = null;
         List<String> attributes = new ArrayList<>();
@@ -741,6 +746,8 @@ public class GlslTreeifier {
                 attributes.add(current.string());
                 streamer.advance();
             } else if (current.is(TokenGroup.STORAGE_TYPE)) {
+                List<GlslSegment> result = new ArrayList<>();
+
                 GlslSegment segment = nextStorage(streamer);
                 switch (segment.getSegmentType()) {
                     case BLOCK_DEF:
@@ -750,16 +757,34 @@ public class GlslTreeifier {
                         ((GlslMemberSegment) segment).setModifiers(attributes);
                         ((GlslMemberSegment) segment).setLayout(layoutQualif);
 
-                        if (streamer.current().is('=')) {
-                            streamer.advance();
-                            ((GlslMemberSegment) segment).setValue(nextValue(streamer));
+                        while (true) {
+                            GlslMemberSegment member = ((GlslMemberSegment) segment).template();
+
+                            if (streamer.current().is('=')) {
+                                streamer.advance();
+                                ((GlslMemberSegment) segment).setValue(nextValue(streamer));
+                            }
+
+                            result.add(member);
+
+                            if (!streamer.current().is(','))
+                                break;
+                            else {
+                                System.out.println("h");
+                                streamer.advance();
+                                ((GlslMemberSegment) segment).getMember().getVar().setName(
+                                        streamer.current().string()
+                                );
+                                streamer.advance();
+                            }
                         }
+
                         break;
 
                     default:
                         throw new ParseException("wat");
                 }
-                return segment;
+                return result;
             } else if (current.is(TokenType.LAYOUT)) {
                 streamer.advance();
                 layoutQualif = layout(streamer);
@@ -768,18 +793,18 @@ public class GlslTreeifier {
                 specifier.setModifiers(attributes);
 
                 if (streamer.current().is('(')) {
-                    return nextFunction(specifier, streamer);
+                    return Collections.singletonList(nextFunction(specifier, streamer));
                 } else if (streamer.current().is(';')) {
-                    return new GlslVarSegment(
+                    return Collections.singletonList(new GlslVarSegment(
                             specifier
-                    );
+                    ));
                 } else if (streamer.current().is('=')) {
                     streamer.advance();
                     GlslValue value = nextValue(streamer);
 
-                    return new GlslVarSegment(
+                    return Collections.singletonList(new GlslVarSegment(
                             specifier
-                    ).setValue(value);
+                    ).setValue(value));
                 } else {
                     throw new ParseException("Unexpected symbol");
                 }
@@ -790,7 +815,9 @@ public class GlslTreeifier {
 
     private static void parseTo(TokenStreamer streamer, GlslFile file) {
         while (!streamer.isDone()) {
-            file.addSegment(nextSegment(streamer));
+            for (GlslSegment segment : nextSegment(streamer)) {
+                file.addSegment(segment);
+            }
             streamer.clearBuffer();
         }
     }
