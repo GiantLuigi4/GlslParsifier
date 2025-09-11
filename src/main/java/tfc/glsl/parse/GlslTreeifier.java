@@ -536,6 +536,45 @@ public class GlslTreeifier {
         return statement;
     }
 
+    private static GlslStatement nextSwitch(TokenStreamer streamer) {
+        streamer.advance(); // pop "switch"
+
+        if (!streamer.current().is('('))
+            throw new RuntimeException("Unexpected symbol");
+        streamer.advance();
+
+        GlslValue value = nextValue(streamer);
+        streamer.advance();
+
+        if (!streamer.current().is('{'))
+            throw new RuntimeException("Unexpected symbol");
+        streamer.advance();
+
+        SwitchStatement statement = new SwitchStatement(value);
+
+        SwitchStatement.SwitchCase switchCase = null;
+        while (true) {
+            popSemis(streamer);
+            if (streamer.current().is('}')) {
+                break;
+            } else if (streamer.current().is(TokenType.CASE)) {
+                streamer.advance();
+                switchCase = new SwitchStatement.SwitchCase(nextValue(streamer));
+                if (!streamer.current().is(':'))
+                    throw new RuntimeException("Unexpected symbol");
+                streamer.advance();
+                statement.addCase(switchCase);
+            } else {
+                switchCase.addStatement(
+                        nextStatement(streamer)
+                );
+            }
+        }
+        streamer.advance();
+
+        return statement;
+    }
+
     private static GlslStatement nextStatement(TokenStreamer streamer) {
         // if statement type can be immediately resolved, statement is that statement type
         // elsewise, statement is var def or var assignment based upon position of =
@@ -545,6 +584,9 @@ public class GlslTreeifier {
         switch (token.type()) {
             case IF -> {
                 return nextIf(streamer);
+            }
+            case SWITCH -> {
+                return nextSwitch(streamer);
             }
             case FOR -> {
                 return nextFor(streamer);

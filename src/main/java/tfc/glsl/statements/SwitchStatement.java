@@ -1,0 +1,74 @@
+package tfc.glsl.statements;
+
+import tfc.glsl.base.GlslStatement;
+import tfc.glsl.base.GlslValue;
+import tfc.glsl.base.StatementType;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class SwitchStatement extends GlslStatement {
+    GlslValue value;
+    List<SwitchCase> cases = new ArrayList<>();
+
+    public SwitchStatement(GlslValue value) {
+        super(StatementType.SWITCH);
+        this.value = value;
+    }
+
+    public GlslValue getValue() {
+        return value;
+    }
+
+    public SwitchStatement setValue(GlslValue value) {
+        this.value = value;
+        return this;
+    }
+
+    public void addCase(SwitchCase switchCase) {
+        this.cases.add(switchCase);
+    }
+
+    public static class SwitchCase {
+        GlslValue value;
+        List<GlslStatement> statements = new ArrayList<>();
+
+        public SwitchCase(GlslValue value) {
+            this.value = value;
+        }
+
+        public GlslValue getValue() {
+            return value;
+        }
+
+        public SwitchCase setValue(GlslValue value) {
+            this.value = value;
+            return this;
+        }
+
+        public void addStatement(GlslStatement glslStatement) {
+            statements.add(glslStatement);
+        }
+    }
+
+    @Override
+    public void asString(StringBuilder builder, int indentLevel) {
+        builder.append("\t".repeat(indentLevel));
+        builder.append("switch (");
+        value.asString(builder);
+        builder.append(") {\n");
+        for (SwitchCase aCase : cases) {
+            builder.append("\t".repeat(indentLevel));
+            builder.append("case ");
+            aCase.value.asString(builder);
+            builder.append(":\n");
+
+            for (GlslStatement statement : aCase.statements) {
+                statement.asString(builder, indentLevel + 1);
+                builder.append("\n");
+            }
+        }
+        builder.append("\t".repeat(indentLevel));
+        builder.append("}");
+    }
+}

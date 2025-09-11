@@ -22,7 +22,8 @@ public enum TokenType {
 
     IF("if"), ELSE("else"),
     FOR("for"), WHILE("while"),
-    DO("do"),
+    DO("do"), SWITCH("switch"),
+    CASE("case"),
 
     BREAK("break"), CONTINUE("continue"),
     RETURN("return"),
