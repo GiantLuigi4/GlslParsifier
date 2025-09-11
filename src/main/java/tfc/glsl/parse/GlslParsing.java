@@ -91,7 +91,27 @@ class GlslParsing {
         TokenType type = checker.find(reader);
         if (type != null) {
             int len = type.text.length();
-            if (reader.whitespaceAt(len)) {
+            boolean valid = reader.whitespaceAt(len);
+            if (!valid) {
+                reader.skip(len);
+
+                GlslToken special = getSpecial(reader.charAt(0));
+                if (special != null) {
+                    valid = true;
+                }
+
+                if (!valid) {
+                    for (Pair<String, GlslToken> dualSymbolOp : dualSymbolOps) {
+                        if (reader.startsWith(dualSymbolOp.getFirst())) {
+                            valid = true;
+                            break;
+                        }
+                    }
+                }
+
+                reader.skip(-len);
+            }
+            if (valid) {
                 reader.skip(len);
                 reader.skipWS();
                 if (type == TokenType.VERSION_DIRECTIVE || type == TokenType.EXTENSION_DIRECTIVE) {

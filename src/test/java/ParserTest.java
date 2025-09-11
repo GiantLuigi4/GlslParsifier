@@ -63,6 +63,13 @@ public class ParserTest {
                         q = ++q;
                         q = -(++q);
                         
+                        if (a > 5) {
+                            q *= 2;
+                        } else if (a < 2) {
+                            q /= 2;
+                        } else {
+                            q++;
+                        }
                     }
                 }
                 """);

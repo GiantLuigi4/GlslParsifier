@@ -5,7 +5,6 @@ public enum ValueType {
     OPERATION,
     UNARY_OPERATION,
     FUNCTION,
-    REFERENCE,
     CONSTANT,
     PARENTH,
     ASSIGNMENT,
