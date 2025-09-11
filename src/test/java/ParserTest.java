@@ -56,6 +56,13 @@ public class ParserTest {
                         do {
                             q += 1;
                         } while (q < 10);
+                        
+                        q = q++;
+                        i++;
+                        ++i;
+                        q = ++q;
+                        q = -(++q);
+                        
                     }
                 }
                 """);

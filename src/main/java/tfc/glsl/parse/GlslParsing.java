@@ -24,7 +24,7 @@ class GlslParsing {
                     String.valueOf(chr)
             ));
         }
-        String[] ops = new String[] {
+        String[] ops = new String[]{
                 "+=",
                 "-=",
                 "/=",
@@ -33,6 +33,8 @@ class GlslParsing {
                 "&&",
                 "!=",
                 "==",
+                "++",
+                "--"
         };
         for (String op : ops) {
             dualSymbolOps.add(Pair.of(
@@ -121,7 +123,7 @@ class GlslParsing {
 
         char c = reader.charAt(0);
         GlslToken special;
-        if  (c == '.' && Character.isDigit(reader.peek(1))) {
+        if (c == '.' && Character.isDigit(reader.peek(1))) {
         } else {
             special = getSpecial(c);
             if (special != null) {

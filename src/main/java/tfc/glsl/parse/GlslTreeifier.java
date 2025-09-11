@@ -173,9 +173,40 @@ public class GlslTreeifier {
                 );
                 return value;
             }
+            case "++" -> {
+                streamer.advance();
+                return new IncValue(
+                        nextMonoTokenValue(streamer),
+                        "++"
+                ).setPreIncrement(true);
+            }
+            case "--" -> {
+                streamer.advance();
+                return new IncValue(
+                        nextMonoTokenValue(streamer),
+                        "--"
+                ).setPreIncrement(true);
+            }
         }
 
         GlslValue value = nextMonoTokenValue(streamer);
+
+        switch (streamer.current().string()) {
+            case "++" -> {
+                streamer.advance();
+                return new IncValue(
+                        value,
+                        "++"
+                ).setPreIncrement(false);
+            }
+            case "--" -> {
+                streamer.advance();
+                return new IncValue(
+                        value,
+                        "--"
+                ).setPreIncrement(false);
+            }
+        }
 
         return value;
     }
@@ -491,6 +522,11 @@ public class GlslTreeifier {
                     return new MethodCallStatement(
                             (MethodCallValue) value
                     );
+                } else if (value.getValueType() == ValueType.INC) {
+                    return new IncStatement(
+                            ((IncValue) value).getRef(),
+                            ((IncValue) value).getOperation()
+                    ).setPreIncrement(((IncValue) value).isPreIncrement());
                 }
                 streamer.setIndex(index);
 

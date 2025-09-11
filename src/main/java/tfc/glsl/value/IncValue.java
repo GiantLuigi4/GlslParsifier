@@ -1,17 +1,18 @@
-package tfc.glsl.statements;
+package tfc.glsl.value;
 
 import org.jetbrains.annotations.NotNull;
 import tfc.glsl.base.GlslStatement;
 import tfc.glsl.base.GlslValue;
 import tfc.glsl.base.StatementType;
+import tfc.glsl.base.ValueType;
 
-public class IncStatement extends GlslStatement {
+public class IncValue extends GlslValue {
     @NotNull GlslValue ref;
     @NotNull String operation;
     boolean preIncrement = false;
 
-    public IncStatement(@NotNull GlslValue ref, @NotNull String operation) {
-        super(StatementType.INC);
+    public IncValue(@NotNull GlslValue ref, @NotNull String operation) {
+        super(ValueType.INC);
         this.ref = ref;
         this.operation = operation;
     }
@@ -20,7 +21,7 @@ public class IncStatement extends GlslStatement {
         return preIncrement;
     }
 
-    public IncStatement setPreIncrement(boolean preIncrement) {
+    public IncValue setPreIncrement(boolean preIncrement) {
         this.preIncrement = preIncrement;
         return this;
     }
@@ -29,7 +30,7 @@ public class IncStatement extends GlslStatement {
         return ref;
     }
 
-    public IncStatement setRef(GlslValue ref) {
+    public IncValue setRef(GlslValue ref) {
         this.ref = ref;
         return this;
     }
@@ -38,21 +39,19 @@ public class IncStatement extends GlslStatement {
         return operation;
     }
 
-    public IncStatement setOperation(String operation) {
+    public IncValue setOperation(String operation) {
         this.operation = operation;
         return this;
     }
 
     @Override
-    public void asString(StringBuilder builder, int indentLevel) {
-        builder.append("\t".repeat(indentLevel));
+    public void asString(StringBuilder builder) {
         if (preIncrement) {
             builder.append(operation);
             ref.asString(builder);
-            builder.append(";");
         } else {
             ref.asString(builder);
-            builder.append(operation).append(";");
+            builder.append(operation);
         }
     }
 }
