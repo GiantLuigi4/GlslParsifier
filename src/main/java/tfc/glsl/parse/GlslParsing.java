@@ -88,25 +88,28 @@ class GlslParsing {
 
         TokenType type = checker.find(reader);
         if (type != null) {
-            reader.skip(type.text.length());
-            reader.skipWS();
-            if (type == TokenType.VERSION_DIRECTIVE || type == TokenType.EXTENSION_DIRECTIVE) {
-                char c = reader.charAt(0);
-                StringBuilder builder = new StringBuilder();
-                while (c != '\n') {
-                    reader.advance();
-                    builder.append(c);
-                    c = reader.charAt(0);
+            int len = type.text.length();
+            if (reader.whitespaceAt(len)) {
+                reader.skip(len);
+                reader.skipWS();
+                if (type == TokenType.VERSION_DIRECTIVE || type == TokenType.EXTENSION_DIRECTIVE) {
+                    char c = reader.charAt(0);
+                    StringBuilder builder = new StringBuilder();
+                    while (c != '\n') {
+                        reader.advance();
+                        builder.append(c);
+                        c = reader.charAt(0);
+                    }
+                    return Arrays.asList(
+                            type.singletonToken,
+                            new GlslToken(
+                                    TokenType.LITERAL,
+                                    builder.toString()
+                            )
+                    );
                 }
-                return Arrays.asList(
-                        type.singletonToken,
-                        new GlslToken(
-                                TokenType.LITERAL,
-                                builder.toString()
-                        )
-                );
+                return Collections.singletonList(type.singletonToken);
             }
-            return Collections.singletonList(type.singletonToken);
         }
 
         for (Pair<String, GlslToken> dualSymbolOp : dualSymbolOps) {
@@ -132,6 +135,10 @@ class GlslParsing {
         if (Character.isDigit(c)) readingNumber = true;
         while (!Character.isWhitespace(c)) {
             reader.advance();
+            if (reader.isEmpty()) {
+                break;
+            }
+
             c = reader.peek();
             if (!readingNumber || c != '.') {
                 special = getSpecial(c);

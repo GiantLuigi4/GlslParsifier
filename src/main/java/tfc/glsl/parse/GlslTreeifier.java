@@ -15,6 +15,7 @@ import tfc.glsl.value.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class GlslTreeifier {
     protected static void checkSpecial(TokenStreamer streamer, char expected) {
@@ -104,6 +105,9 @@ public class GlslTreeifier {
         breakLoop:
         while (true) {
             GlslToken token = streamer.current();
+            if (token.is(TokenType.EOS))
+                return value;
+
             switch (token.string()) {
                 case "[" -> {
                     streamer.advance();
@@ -139,7 +143,7 @@ public class GlslTreeifier {
                     streamer.advance();
                     AccessMemberValue value1 = new AccessMemberValue(
                             value,
-                            nextValue(streamer)
+                            nextMonoTokenValue(streamer)
                     );
                     value = value1;
                 }
@@ -163,25 +167,29 @@ public class GlslTreeifier {
             }
             case "-" -> {
                 streamer.advance();
-                return new UnaryOperation(
+                GlslValue value = new UnaryOperation(
                         "-",
                         nextValueNoExpr(streamer)
                 );
+                return value;
             }
         }
 
         GlslValue value = nextMonoTokenValue(streamer);
-        value = chainAccess(value, streamer);
 
         return value;
     }
 
-    private static GlslValue nextValueNoExpr(TokenStreamer streamer) {
+    public static GlslValue nextValueNoExpr(TokenStreamer streamer) {
 //        throw new RuntimeException("NYI");
 
 //        ((new int[2][2])[0] = new int[5])[0] = 2;
 
         GlslValue value = nextInnerValue(streamer);
+        value = chainAccess(value, streamer);
+
+        if (streamer.current().is(TokenType.EOS))
+            return value;
 
         switch (streamer.current().string()) {
             case ";" -> {
@@ -211,7 +219,10 @@ public class GlslTreeifier {
     }
 
     private static GlslValue nextValue(TokenStreamer streamer) {
-        return nextValueNoExpr(streamer);
+//        return nextValueNoExpr(streamer);
+        return ExpressionParser.doParse(
+                streamer, () -> nextValueNoExpr(streamer)
+        );
     }
 
     private static ArraySpecifier nextArraySpecifier(TokenStreamer streamer) {
@@ -350,6 +361,88 @@ public class GlslTreeifier {
         }
     }
 
+    private static GlslStatement nextFor(TokenStreamer streamer) {
+        streamer.advance(); // pop "for"
+        if (!streamer.current().is('('))
+            throw new RuntimeException("Unexpected symbol");
+        streamer.advance();
+
+        GlslStatement vd;
+        if (streamer.current().is(';'))
+            vd = new ArbitraryStatement("");
+        else vd = nextStatement(streamer);
+        streamer.advance();
+
+        GlslValue comparison;
+        if (streamer.current().is(';'))
+            comparison = new BooleanValue(true);
+        else comparison = nextValue(streamer);
+        streamer.advance();
+
+        GlslStatement incr;
+        if (streamer.current().is(';'))
+            incr = new ArbitraryStatement("");
+        else incr = nextStatement(streamer);
+        streamer.advance();
+
+        ForStatement forSt = new ForStatement(vd, comparison, incr);
+
+        if (!streamer.current().is('{'))
+            throw new RuntimeException("Unexpected symbol");
+        streamer.advance();
+
+        nextBody(streamer, forSt::addStatement);
+
+        return forSt;
+    }
+
+    private static GlslStatement nextWhile(TokenStreamer streamer) {
+        streamer.advance(); // pop "while"
+
+        if (!streamer.current().is('('))
+            throw new RuntimeException("Unexpected symbol");
+        streamer.advance();
+
+        GlslValue condition;
+        if (streamer.current().is(')'))
+            condition = new BooleanValue(true);
+        else condition = nextValue(streamer);
+        streamer.advance();
+
+        WhileStatement statement = new WhileStatement(condition);
+        if (!streamer.current().is('{'))
+            throw new RuntimeException("Unexpected symbol");
+        streamer.advance();
+        nextBody(streamer, statement::addStatement);
+
+        return statement;
+    }
+
+    private static final GlslValue PLACEHOLDER_TRUE = new BooleanValue(true);
+
+    private static GlslStatement nextDo(TokenStreamer streamer) {
+        streamer.advance(); // pop "do"
+        if (!streamer.current().is('{'))
+            throw new RuntimeException("Unexpected symbol");
+        streamer.advance();
+
+        DoWhileStatement statement = new DoWhileStatement(PLACEHOLDER_TRUE);
+        nextBody(streamer, statement::addStatement);
+
+        if (!streamer.current().is("while"))
+            throw new RuntimeException("Unexpected symbol");
+        streamer.advance();
+        if (!streamer.current().is("("))
+            throw new RuntimeException("Unexpected symbol");
+        streamer.advance();
+
+        if (!streamer.current().is(')'))
+            statement.setCondition(nextValue(streamer));
+        streamer.advance();
+
+        return statement;
+    }
+
     private static GlslStatement nextStatement(TokenStreamer streamer) {
         // if statement type can be immediately resolved, statement is that statement type
         // elsewise, statement is var def or var assignment based upon position of =
@@ -361,13 +454,13 @@ public class GlslTreeifier {
                 throw new RuntimeException("NYI");
             }
             case FOR -> {
-                throw new RuntimeException("NYI");
+                return nextFor(streamer);
             }
             case DO -> {
-                throw new RuntimeException("NYI");
+                return nextDo(streamer);
             }
             case WHILE -> {
-                throw new RuntimeException("NYI");
+                return nextWhile(streamer);
             }
             case CONTINUE -> {
                 return ContinueStatement.INSTANCE;
@@ -426,6 +519,17 @@ public class GlslTreeifier {
         }
     }
 
+    private static void nextBody(TokenStreamer streamer, Consumer<GlslStatement> addStatement) {
+        while (!streamer.current().is('}')) {
+            popSemis(streamer);
+            if (streamer.current().is('}'))
+                break;
+
+            addStatement.accept(nextStatement(streamer));
+        }
+        streamer.advance();
+    }
+
     private static GlslSegment nextFunction(VarSpecifier specifier, TokenStreamer streamer) {
         if (!streamer.current().is('(')) {
             throw new RuntimeException("Unexpected symbol");
@@ -447,14 +551,7 @@ public class GlslTreeifier {
         }
         streamer.advance();
 
-        while (!streamer.current().is('}')) {
-            popSemis(streamer);
-            if (streamer.current().is('}'))
-                break;
-
-            codeSegment.addStatement(nextStatement(streamer));
-        }
-        streamer.advance();
+        nextBody(streamer, codeSegment::addStatement);
 
         return codeSegment;
     }

@@ -48,12 +48,30 @@ public class OperationValue extends GlslValue {
 //            return noParen();
 //        }
 
-        builder.append("(");
+//        builder.append("(");
+//        left.asString(builder);
+//        builder.append(" ")
+//                .append(op)
+//                .append(" ");
+//        right.asString(builder);
+//        builder.append(")");
+
+        boolean constRes = left.constResolvable() && right.constResolvable();
+        if (!constRes) {
+            builder.append("(");
+        }
         left.asString(builder);
         builder.append(" ")
                 .append(op)
                 .append(" ");
         right.asString(builder);
-        builder.append(")");
+        if (!constRes) {
+            builder.append(")");
+        }
+    }
+
+    @Override
+    public boolean constResolvable() {
+        return false;
     }
 }

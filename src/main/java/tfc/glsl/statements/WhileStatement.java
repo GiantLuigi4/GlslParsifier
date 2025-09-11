@@ -36,7 +36,7 @@ public class WhileStatement extends GlslStatement {
         condition.asString(builder);
         builder.append(") {\n");
         for (GlslStatement glslStatement : block) {
-            glslStatement.asString(builder, indentLevel+1);
+            glslStatement.asString(builder, indentLevel + 1);
             builder.append("\n");
         }
         builder.append("\t".repeat(indentLevel)).append("}");

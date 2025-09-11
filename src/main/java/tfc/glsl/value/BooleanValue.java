@@ -25,4 +25,9 @@ public class BooleanValue extends GlslValue {
     public void asString(StringBuilder builder) {
         builder.append(value);
     }
+
+    @Override
+    public boolean constResolvable() {
+        return true;
+    }
 }

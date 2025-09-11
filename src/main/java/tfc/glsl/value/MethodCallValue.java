@@ -49,4 +49,9 @@ public class MethodCallValue extends GlslValue {
         }
         builder.append(")");
     }
+
+    @Override
+    public boolean constResolvable() {
+        return true;
+    }
 }

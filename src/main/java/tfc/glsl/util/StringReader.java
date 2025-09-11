@@ -36,6 +36,7 @@ public class StringReader {
     }
 
     public void skipWS() {
+        if (isEmpty()) return;
         char c = charAt(0);
         while (Character.isWhitespace(c)) {
             cursor++;
@@ -78,5 +79,10 @@ public class StringReader {
 
     public String absSubstring(int start, int end) {
         return text.substring(start, end);
+    }
+
+    public boolean whitespaceAt(int i) {
+        if (cursor + i > len) return true;
+        return Character.isWhitespace(text.charAt(cursor + i));
     }
 }

@@ -24,4 +24,8 @@ public abstract class GlslValue {
 //        return asString();
         throw new RuntimeException();
     }
+
+    public boolean constResolvable() {
+        return false;
+    }
 }

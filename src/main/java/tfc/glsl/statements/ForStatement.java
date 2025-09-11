@@ -60,7 +60,7 @@ public class ForStatement extends GlslStatement {
         if (endSemi) {
             if (!str.endsWith(";")) return str + ";";
             return str;
-        }  else {
+        } else {
             if (str.endsWith(";")) return str.substring(0, str.length() - 1);
             return str;
         }

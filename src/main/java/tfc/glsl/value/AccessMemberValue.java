@@ -39,4 +39,9 @@ public class AccessMemberValue extends GlslValue {
         builder.append('.');
         member.asString(builder);
     }
+
+    @Override
+    public boolean constResolvable() {
+        return true;
+    }
 }

@@ -25,4 +25,9 @@ public class ConstantValue extends GlslValue {
     public void asString(StringBuilder builder) {
         builder.append(value);
     }
+
+    @Override
+    public boolean constResolvable() {
+        return true;
+    }
 }

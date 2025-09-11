@@ -40,4 +40,9 @@ public class AccessArrayValue extends GlslValue {
         access.asString(builder);
         builder.append(']');
     }
+
+    @Override
+    public boolean constResolvable() {
+        return true;
+    }
 }

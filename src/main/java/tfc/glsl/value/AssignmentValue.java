@@ -63,4 +63,9 @@ public class AssignmentValue extends GlslValue {
         builder.append(" = ");
         value.asString(builder);
     }
+
+    @Override
+    public boolean constResolvable() {
+        return false;
+    }
 }

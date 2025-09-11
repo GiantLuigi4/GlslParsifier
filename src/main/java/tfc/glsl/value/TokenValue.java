@@ -25,4 +25,9 @@ public class TokenValue extends GlslValue {
     public void asString(StringBuilder builder) {
         builder.append(text);
     }
+
+    @Override
+    public boolean constResolvable() {
+        return true;
+    }
 }

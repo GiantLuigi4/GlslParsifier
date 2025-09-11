@@ -5,8 +5,8 @@ import tfc.glsl.base.GlslStatement;
 import tfc.glsl.base.GlslValue;
 import tfc.glsl.base.StatementType;
 
-public class IncStatement extends GlslStatement  {
-    @NotNull  GlslValue ref;
+public class IncStatement extends GlslStatement {
+    @NotNull GlslValue ref;
     @NotNull String operation;
 
     public IncStatement(@NotNull GlslValue ref, @NotNull String operation) {

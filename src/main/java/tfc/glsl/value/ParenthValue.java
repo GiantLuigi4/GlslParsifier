@@ -28,4 +28,9 @@ public class ParenthValue extends GlslValue {
         value.asString(builder);
         builder.append(')');
     }
+
+    @Override
+    public boolean constResolvable() {
+        return true;
+    }
 }

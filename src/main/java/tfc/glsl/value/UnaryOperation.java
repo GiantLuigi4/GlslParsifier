@@ -17,10 +17,11 @@ public class UnaryOperation extends GlslValue {
     @Override
     public void asString(StringBuilder builder) {
         if (
-                value.getValueType() == ValueType.OPERATION ||
-                        value.getValueType() == ValueType.ASSIGNMENT ||
-                        value.getValueType() == ValueType.REFERENCE ||
-                        value.getValueType() == ValueType.FUNCTION
+//                value.getValueType() == ValueType.OPERATION ||
+//                        value.getValueType() == ValueType.ASSIGNMENT ||
+//                        value.getValueType() == ValueType.REFERENCE ||
+//                        value.getValueType() == ValueType.FUNCTION
+                !value.constResolvable()
         ) {
             builder.append(op).append("(");
             value.asString(builder);
@@ -29,5 +30,10 @@ public class UnaryOperation extends GlslValue {
         }
         builder.append(op);
         value.asString(builder);
+    }
+
+    @Override
+    public boolean constResolvable() {
+        return true;
     }
 }
