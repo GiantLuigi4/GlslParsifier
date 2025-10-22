@@ -15,6 +15,33 @@ public class OperationValue extends GlslValue {
         this.right = right;
     }
 
+    public GlslValue getLeft() {
+        return left;
+    }
+
+    public OperationValue setLeft(GlslValue left) {
+        this.left = left;
+        return this;
+    }
+
+    public GlslValue getRight() {
+        return right;
+    }
+
+    public OperationValue setRight(GlslValue right) {
+        this.right = right;
+        return this;
+    }
+
+    public String getOp() {
+        return op;
+    }
+
+    public OperationValue setOp(String op) {
+        this.op = op;
+        return this;
+    }
+
     protected String noParen() {
         return left + " " + op + " " + right;
     }
@@ -73,5 +100,12 @@ public class OperationValue extends GlslValue {
     @Override
     public boolean constResolvable() {
         return false;
+    }
+
+    @Override
+    public GlslValue duplicate() {
+        return new OperationValue(
+                left.duplicate(), op, right.duplicate()
+        );
     }
 }

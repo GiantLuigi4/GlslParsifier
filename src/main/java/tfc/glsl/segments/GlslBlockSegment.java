@@ -80,6 +80,24 @@ public class GlslBlockSegment extends GlslSegment {
         return instance;
     }
 
+    public List<Member> getMembers() {
+        return members;
+    }
+
+    public GlslBlockSegment setMembers(List<Member> members) {
+        this.members = members;
+        return this;
+    }
+
+    public StorageQualifier getType() {
+        return type;
+    }
+
+    public GlslBlockSegment setType(StorageQualifier type) {
+        this.type = type;
+        return this;
+    }
+
     @Override
     public void asString(StringBuilder builder) {
         if (layout != null) builder.append(layout).append(" ");

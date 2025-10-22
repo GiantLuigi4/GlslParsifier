@@ -68,4 +68,9 @@ public class AssignmentValue extends GlslValue {
     public boolean constResolvable() {
         return false;
     }
+
+    @Override
+    public GlslValue duplicate() {
+        return new AssignmentValue(ref.duplicate(), auxiliaryOp, value.duplicate());
+    }
 }

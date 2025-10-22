@@ -32,7 +32,7 @@ public class Parameter {
     @Override
     public String toString() {
         if (qualifier != null)
-            return var.accessStr() + qualifier + " " + var.varStr();
+            return var.accessStr() + qualifier.getTypeName() + " " + var.varStr();
         return var.toString();
     }
 }

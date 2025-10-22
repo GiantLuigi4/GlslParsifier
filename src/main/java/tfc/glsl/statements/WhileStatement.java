@@ -30,6 +30,10 @@ public class WhileStatement extends GlslStatement {
         block.add(statement);
     }
 
+    public List<GlslStatement> getBlock() {
+        return block;
+    }
+
     @Override
     public void asString(StringBuilder builder, int indentLevel) {
         builder.append("\t".repeat(indentLevel)).append("while (");

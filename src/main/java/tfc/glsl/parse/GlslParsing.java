@@ -53,7 +53,7 @@ class GlslParsing {
 
     private static void popComments(StringReader reader) {
         while (true) {
-            if (reader.startsWith("//")) {
+            if (reader.startsWith("//") || reader.startsWith("#line")) {
                 reader.skip(2);
                 char c = reader.peek();
                 while (c != '\n') {

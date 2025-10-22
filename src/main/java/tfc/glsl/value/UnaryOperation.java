@@ -14,6 +14,24 @@ public class UnaryOperation extends GlslValue {
         this.op = op;
     }
 
+    public GlslValue getValue() {
+        return value;
+    }
+
+    public UnaryOperation setValue(GlslValue value) {
+        this.value = value;
+        return this;
+    }
+
+    public String getOp() {
+        return op;
+    }
+
+    public UnaryOperation setOp(String op) {
+        this.op = op;
+        return this;
+    }
+
     @Override
     public void asString(StringBuilder builder) {
         if (
@@ -35,5 +53,10 @@ public class UnaryOperation extends GlslValue {
     @Override
     public boolean constResolvable() {
         return true;
+    }
+
+    @Override
+    public GlslValue duplicate() {
+        return new UnaryOperation(op, value.duplicate());
     }
 }

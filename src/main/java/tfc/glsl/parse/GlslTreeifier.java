@@ -435,6 +435,10 @@ public class GlslTreeifier {
     private static boolean matchAssignmentOverload(String str) {
         if (str.length() == 1) return str.equals("=");
 
+        char ochar = str.charAt(1);
+        if (ochar != '=')
+            return false;
+
         char echar = str.charAt(0);
         switch (echar) {
             case '+', '-', '/', '*' -> {
@@ -776,7 +780,6 @@ public class GlslTreeifier {
     }
 
     private static List<GlslSegment> nextSegment(TokenStreamer streamer) {
-        popSemis(streamer);
         LayoutQualifier layoutQualif = null;
         List<String> attributes = new ArrayList<>();
         while (true) {
@@ -794,6 +797,7 @@ public class GlslTreeifier {
                 switch (segment.getSegmentType()) {
                     case BLOCK_DEF:
                         ((GlslBlockSegment) segment).setLayout(layoutQualif);
+                        result.add(segment);
                         break;
                     case MEMBER_DEF:
                         ((GlslMemberSegment) segment).setModifiers(attributes);
@@ -856,10 +860,12 @@ public class GlslTreeifier {
     }
 
     private static void parseTo(TokenStreamer streamer, GlslFile file) {
+        popSemis(streamer);
         while (!streamer.isDone()) {
             for (GlslSegment segment : nextSegment(streamer)) {
                 file.addSegment(segment);
             }
+            popSemis(streamer);
             streamer.clearBuffer();
         }
     }

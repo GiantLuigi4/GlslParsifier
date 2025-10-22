@@ -45,4 +45,9 @@ public class AccessArrayValue extends GlslValue {
     public boolean constResolvable() {
         return true;
     }
+
+    @Override
+    public GlslValue duplicate() {
+        return new AccessArrayValue(object.duplicate(), access.duplicate());
+    }
 }

@@ -44,4 +44,9 @@ public class AccessMemberValue extends GlslValue {
     public boolean constResolvable() {
         return true;
     }
+
+    @Override
+    public GlslValue duplicate() {
+        return new AccessMemberValue(object.duplicate(), member.duplicate());
+    }
 }

@@ -54,4 +54,15 @@ public class MethodCallValue extends GlslValue {
     public boolean constResolvable() {
         return true;
     }
+
+    @Override
+    public GlslValue duplicate() {
+        GlslValue[] dup = new GlslValue[params.length];
+        for (int i = 0; i < params.length; i++) {
+            if (params[i] != null) {
+                dup[i] = params[i].duplicate();
+            }
+        }
+        return new MethodCallValue(name.duplicate()).setParams(dup);
+    }
 }

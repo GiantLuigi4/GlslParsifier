@@ -30,4 +30,9 @@ public class BooleanValue extends GlslValue {
     public boolean constResolvable() {
         return true;
     }
+
+    @Override
+    public GlslValue duplicate() {
+        return new BooleanValue(value);
+    }
 }

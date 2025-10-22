@@ -15,6 +15,33 @@ public class TernaryValue extends GlslValue {
         this.valueB = valueB;
     }
 
+    public GlslValue getCondition() {
+        return condition;
+    }
+
+    public TernaryValue setCondition(GlslValue condition) {
+        this.condition = condition;
+        return this;
+    }
+
+    public GlslValue getValueA() {
+        return valueA;
+    }
+
+    public TernaryValue setValueA(GlslValue valueA) {
+        this.valueA = valueA;
+        return this;
+    }
+
+    public GlslValue getValueB() {
+        return valueB;
+    }
+
+    public TernaryValue setValueB(GlslValue valueB) {
+        this.valueB = valueB;
+        return this;
+    }
+
     @Override
     public void asString(StringBuilder builder) {
         boolean constRes = condition.constResolvable() && valueA.constResolvable() && valueB.constResolvable();
@@ -33,5 +60,14 @@ public class TernaryValue extends GlslValue {
     @Override
     public boolean constResolvable() {
         return false;
+    }
+
+    @Override
+    public GlslValue duplicate() {
+        return new TernaryValue(
+                condition.duplicate(),
+                valueA.duplicate(),
+                valueB.duplicate()
+        );
     }
 }

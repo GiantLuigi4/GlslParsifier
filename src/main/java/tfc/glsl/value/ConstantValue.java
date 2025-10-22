@@ -30,4 +30,9 @@ public class ConstantValue extends GlslValue {
     public boolean constResolvable() {
         return true;
     }
+
+    @Override
+    public GlslValue duplicate() {
+        return new ConstantValue(value);
+    }
 }

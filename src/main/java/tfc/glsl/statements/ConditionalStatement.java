@@ -40,6 +40,10 @@ public class ConditionalStatement extends GlslStatement {
             return this;
         }
 
+        public List<GlslStatement> getStatements() {
+            return statements;
+        }
+
         public void addStatement(GlslStatement statement) {
             statements.add(statement);
         }
@@ -70,5 +74,9 @@ public class ConditionalStatement extends GlslStatement {
             builder.append("\t".repeat(indentLevel)).append("}");
             first = false;
         }
+    }
+
+    public List<ConditionalCode> getChain() {
+        return chain;
     }
 }

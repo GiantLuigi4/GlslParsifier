@@ -65,6 +65,10 @@ public class GlslCodeSegment extends GlslSegment {
         return this;
     }
 
+    public List<GlslStatement> getStatements() {
+        return statements;
+    }
+
     public List<Parameter> getParams() {
         return params;
     }

@@ -30,4 +30,9 @@ public class TokenValue extends GlslValue {
     public boolean constResolvable() {
         return true;
     }
+
+    @Override
+    public GlslValue duplicate() {
+        return new TokenValue(text);
+    }
 }

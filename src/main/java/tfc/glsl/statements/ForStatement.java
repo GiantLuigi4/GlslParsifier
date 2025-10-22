@@ -52,6 +52,10 @@ public class ForStatement extends GlslStatement {
         return this;
     }
 
+    public List<GlslStatement> getBody() {
+        return body;
+    }
+
     protected String toStr(Object statement, boolean endSemi) {
         if (statement == null) {
             return ";";

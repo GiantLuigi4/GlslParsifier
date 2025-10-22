@@ -54,4 +54,9 @@ public class IncValue extends GlslValue {
             builder.append(operation);
         }
     }
+
+    @Override
+    public GlslValue duplicate() {
+        return new IncValue(ref.duplicate(), operation);
+    }
 }

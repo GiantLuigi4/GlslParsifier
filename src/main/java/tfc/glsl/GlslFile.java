@@ -17,6 +17,24 @@ public class GlslFile {
         segments.add(segment);
     }
 
+    public String getVersion() {
+        return version;
+    }
+
+    public GlslFile setVersion(String version) {
+        this.version = version;
+        return this;
+    }
+
+    public List<GlslSegment> getSegments() {
+        return segments;
+    }
+
+    public GlslFile setSegments(List<GlslSegment> segments) {
+        this.segments = segments;
+        return this;
+    }
+
     // to preserve the functionality of debuggers, toString does not return a string representation of the file
     public String asString() {
         StringBuilder builder = new StringBuilder();

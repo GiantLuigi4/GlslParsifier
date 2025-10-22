@@ -28,4 +28,6 @@ public abstract class GlslValue {
     public boolean constResolvable() {
         return false;
     }
+
+    public abstract GlslValue duplicate();
 }
