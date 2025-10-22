@@ -12,4 +12,5 @@ public enum ValueType {
     ACCESS_ARRAY,
     BOOLEAN,
     INC, TERNARY,
+    CREATE_ARRAY,
 }

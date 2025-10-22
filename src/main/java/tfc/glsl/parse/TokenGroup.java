@@ -8,6 +8,7 @@ public enum TokenGroup {
             TokenType.BUFFER,
             TokenType.IN,
             TokenType.OUT,
+            TokenType.INOUT,
             TokenType.VARYING,
             TokenType.STRUCT,
             TokenType.UNIFORM,
@@ -20,7 +21,8 @@ public enum TokenGroup {
             TokenType.NO_PERSPECTIVE,
             TokenType.CENTROID,
             TokenType.CONST,
-            TokenType.READONLY
+            TokenType.READONLY,
+            TokenType.WRITEONLY
     ),
     TYPE(
             TokenType.FLOAT,

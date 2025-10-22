@@ -62,4 +62,9 @@ public abstract class GlslValueVisitorAdapter implements GlslValueVisitor {
     public void visitUnary(UnaryOperation unaryOperation) {
 
     }
+
+    @Override
+    public void visitArrayCreation(CreateArrayValue createArrayValue) {
+
+    }
 }

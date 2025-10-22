@@ -82,7 +82,7 @@ public class GlslMemberSegment extends GlslSegment {
         }
 
         if (member.getLayout() != null) {
-            builder.append(varModifiers).append(member.getLayout()).append(" ").append(qualifier.getTypeName()).append(" ").append(member.getVar());
+            builder.append(member.getLayout()).append(" ").append(varModifiers).append(qualifier.getTypeName()).append(" ").append(member.getVar());
             if (value != null) {
                 builder.append(" = ");
                 value.asString(builder);

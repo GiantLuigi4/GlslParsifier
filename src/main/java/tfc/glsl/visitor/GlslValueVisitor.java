@@ -28,6 +28,8 @@ public interface GlslValueVisitor {
 
     void visitUnary(UnaryOperation unaryOperation);
 
+    void visitArrayCreation(CreateArrayValue createArrayValue);
+
     default void visitValue(GlslValue value) {
         switch (value.getValueType()) {
             case TOKEN -> visitToken((TokenValue) value);
@@ -87,6 +89,15 @@ public interface GlslValueVisitor {
                 visitUnary(unaryOperation);
                 visitValue(unaryOperation.getValue());
             }
+            case CREATE_ARRAY -> {
+                CreateArrayValue createArrayValue = (CreateArrayValue) value;
+                visitArrayCreation(createArrayValue);
+                visitValue(createArrayValue.getArrayType());
+                for (GlslValue arg : createArrayValue.getValues()) {
+                    visitValue(arg);
+                }
+            }
+            default -> throw new RuntimeException("Unrecognized value type");
         }
     }
 }

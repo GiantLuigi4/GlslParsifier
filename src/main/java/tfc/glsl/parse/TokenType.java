@@ -4,7 +4,7 @@ public enum TokenType {
     VERSION_DIRECTIVE("#version"),
     EXTENSION_DIRECTIVE("#extension"),
 
-    IN("in"), OUT("out"),
+    IN("in"), OUT("out"), INOUT("inout"),
     VARYING("varying"), UNIFORM("uniform"),
     STRUCT("struct"), BUFFER("buffer"),
     ATTRIBUTE("attribute"),
@@ -14,6 +14,7 @@ public enum TokenType {
 
     CONST("const"),
     READONLY("readonly"),
+    WRITEONLY("writeonly"),
 
     FLAT("flat"), NO_PERSPECTIVE("noperspective"),
     CENTROID("centroid"), SMOOTH("smooth"),

@@ -6,6 +6,7 @@ public enum StorageQualifier {
     BUFFER("buffer"),
     IN("in"),
     OUT("out"),
+    INOUT("inout"),
     VARYING("varying"),
     ATTRIBUTE("attribute");
 

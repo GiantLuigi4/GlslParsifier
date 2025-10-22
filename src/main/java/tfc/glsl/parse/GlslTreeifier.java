@@ -114,12 +114,33 @@ public class GlslTreeifier {
             switch (token.string()) {
                 case "[" -> {
                     streamer.advance();
-                    AccessArrayValue value1 = new AccessArrayValue(
-                            value,
-                            nextValue(streamer)
-                    );
-                    streamer.advance();
-                    value = value1;
+                    if (streamer.current().is(']')) {
+                        streamer.advance();
+                        if (!streamer.current().is('(')) {
+                            throw new RuntimeException("Unexpected symbol");
+                        }
+                        streamer.advance();
+                        List<GlslValue> values = new ArrayList<>();
+                        if (!streamer.current().is(')')) {
+                            while (true) {
+                                values.add(nextValue(streamer));
+                                if (streamer.current().is(')')) {
+                                    break;
+                                } else {
+                                    streamer.advance();
+                                }
+                            }
+                        }
+                        streamer.advance();
+                        return new CreateArrayValue(value, values);
+                    } else {
+                        AccessArrayValue value1 = new AccessArrayValue(
+                                value,
+                                nextValue(streamer)
+                        );
+                        streamer.advance();
+                        value = value1;
+                    }
                 }
                 case "(" -> {
                     streamer.advance();
@@ -325,7 +346,11 @@ public class GlslTreeifier {
         return varSpec;
     }
 
-    private static GlslSegment nextMemberDef(TokenStreamer streamer, StorageQualifier qualifier) {
+    private static GlslSegment nextMemberDef(TokenStreamer streamer, StorageQualifier qualifier, List<String> attributes) {
+        while (streamer.current().is(TokenGroup.ATTRIBUTE)) {
+            attributes.add(streamer.current().string());
+            streamer.advance();
+        }
         VarSpecifier specifier = nextVarSpecifier(streamer);
         return new GlslMemberSegment(
                 qualifier, specifier
@@ -389,6 +414,7 @@ public class GlslTreeifier {
             case UNIFORM -> StorageQualifier.UNIFORM;
             case IN -> StorageQualifier.IN;
             case OUT -> StorageQualifier.OUT;
+            case INOUT -> StorageQualifier.INOUT;
             case BUFFER -> StorageQualifier.BUFFER;
             case STRUCT -> StorageQualifier.STRUCT;
             case VARYING -> StorageQualifier.VARYING;
@@ -397,7 +423,7 @@ public class GlslTreeifier {
         };
     }
 
-    private static GlslSegment nextStorage(TokenStreamer streamer) {
+    private static GlslSegment nextStorage(TokenStreamer streamer, List<String> attributes) {
         GlslToken storage = streamer.current();
         streamer.advance();
         TokenType type = storage.type();
@@ -420,7 +446,7 @@ public class GlslTreeifier {
             );
         } else {
             return nextMemberDef(
-                    streamer, qualifier
+                    streamer, qualifier, attributes
             );
         }
     }
@@ -793,7 +819,7 @@ public class GlslTreeifier {
             } else if (current.is(TokenGroup.STORAGE_TYPE)) {
                 List<GlslSegment> result = new ArrayList<>();
 
-                GlslSegment segment = nextStorage(streamer);
+                GlslSegment segment = nextStorage(streamer, attributes);
                 switch (segment.getSegmentType()) {
                     case BLOCK_DEF:
                         ((GlslBlockSegment) segment).setLayout(layoutQualif);
