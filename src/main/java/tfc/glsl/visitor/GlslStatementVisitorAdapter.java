@@ -25,7 +25,7 @@ public abstract class GlslStatementVisitorAdapter implements GlslStatementVisito
     }
 
     @Override
-    public void visitBreak(ContinueStatement statement) {
+    public void visitBreak(BreakStatement statement) {
 
     }
 

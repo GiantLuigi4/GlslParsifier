@@ -39,7 +39,9 @@ class GlslParsing {
                 "<=",
                 ">=",
                 "++",
-                "--"
+                "--",
+                "<<",
+                ">>"
         };
         for (String op : ops) {
             dualSymbolOps.add(Pair.of(

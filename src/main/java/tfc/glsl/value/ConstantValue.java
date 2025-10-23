@@ -7,9 +7,9 @@ import tfc.glsl.base.ValueType;
 public class ConstantValue extends GlslValue {
     @NotNull Number value;
 
-    public ConstantValue(@NotNull Number text) {
+    public ConstantValue(@NotNull Number value) {
         super(ValueType.CONSTANT);
-        this.value = text;
+        this.value = value;
     }
 
     public Number getValue() {

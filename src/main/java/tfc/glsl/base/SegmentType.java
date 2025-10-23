@@ -6,4 +6,5 @@ public enum SegmentType {
     VAR_DEF,
     CODE,
     ARBITRARY,
+    EXTENSION,
 }

@@ -13,7 +13,7 @@ public interface GlslStatementVisitor {
 
     void visitContinue(ContinueStatement statement);
 
-    void visitBreak(ContinueStatement statement);
+    void visitBreak(BreakStatement statement);
 
     void visitWhile(WhileStatement statement);
 
@@ -37,7 +37,7 @@ public interface GlslStatementVisitor {
             case INC -> visitInc((IncStatement) statement);
             case VAR_DEF -> visitVarDef((VarDefStatement) statement);
             case CONTINUE -> visitContinue((ContinueStatement) statement);
-            case BREAK -> visitBreak((ContinueStatement) statement);
+            case BREAK -> visitBreak((BreakStatement) statement);
             case WHILE -> {
                 WhileStatement loop = (WhileStatement) statement;
                 visitWhile(loop);
@@ -48,7 +48,12 @@ public interface GlslStatementVisitor {
             case RETURN -> visitReturn((ReturnStatement) statement);
             case SWITCH -> {
                 visitSwitch((SwitchStatement) statement);
-                throw new RuntimeException("TODO");
+                for (SwitchStatement.SwitchCase aCase : ((SwitchStatement) statement).getCases()) {
+                    for (GlslStatement aCaseStatement : aCase.getStatements()) {
+                        visitStatement(aCaseStatement);
+                    }
+                }
+//                throw new RuntimeException("TODO");
             }
             case DISCARD -> visitDiscard((DiscardStatement) statement);
             case FOR_LOOP -> {
@@ -78,7 +83,7 @@ public interface GlslStatementVisitor {
             case INC -> visitInc((IncStatement) statement);
             case VAR_DEF -> visitVarDef((VarDefStatement) statement);
             case CONTINUE -> visitContinue((ContinueStatement) statement);
-            case BREAK -> visitBreak((ContinueStatement) statement);
+            case BREAK -> visitBreak((BreakStatement) statement);
             case WHILE -> visitWhile((WhileStatement) statement);
             case RETURN -> visitReturn((ReturnStatement) statement);
             case SWITCH -> visitSwitch((SwitchStatement) statement);

@@ -8,11 +8,9 @@ import tfc.glsl.base.ValueType;
 import tfc.glsl.ex.ParseException;
 import tfc.glsl.meta.*;
 import tfc.glsl.meta.enums.StorageQualifier;
-import tfc.glsl.segments.GlslBlockSegment;
-import tfc.glsl.segments.GlslCodeSegment;
-import tfc.glsl.segments.GlslMemberSegment;
-import tfc.glsl.segments.GlslVarSegment;
+import tfc.glsl.segments.*;
 import tfc.glsl.statements.*;
+import tfc.glsl.util.LiteralNumber;
 import tfc.glsl.value.*;
 
 import java.util.ArrayList;
@@ -75,29 +73,11 @@ public class GlslTreeifier {
 
                 streamer.advance();
                 try {
-                    if (str.contains(".")) {
-                        try {
-                            return new ConstantValue(
-                                    Float.parseFloat(str)
-                            );
-                        } catch (Throwable err) {
-                            return new ConstantValue(
-                                    Double.parseDouble(str)
-                            );
-                        }
-                    } else {
-                        try {
-                            return new ConstantValue(
-                                    Integer.parseInt(str)
-                            );
-                        } catch (Throwable err) {
-                            return new ConstantValue(
-                                    Long.parseLong(str)
-                            );
-                        }
-                    }
-                } catch (Throwable err) {
+                    LiteralNumber number = new LiteralNumber(str);
+                    return new ConstantValue(number);
+                } catch (Throwable ignored) {
                 }
+                // TODO: hexadecimal number type
 
                 return new TokenValue(str);
             }
@@ -813,7 +793,12 @@ public class GlslTreeifier {
 
 //            GlslSegment segment = trySegment(streamer);
 
-            if (current.is(TokenGroup.ATTRIBUTE)) {
+            if (current.is(TokenType.EXTENSION_DIRECTIVE)) {
+                streamer.advance();
+                String dir = streamer.current().string();
+                streamer.advance();
+                return Collections.singletonList(new ExtensionSegment(dir));
+            } else if (current.is(TokenGroup.ATTRIBUTE)) {
                 attributes.add(current.string());
                 streamer.advance();
             } else if (current.is(TokenGroup.STORAGE_TYPE)) {

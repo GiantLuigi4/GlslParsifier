@@ -25,6 +25,15 @@ public class SwitchStatement extends GlslStatement {
         return this;
     }
 
+    public List<SwitchCase> getCases() {
+        return cases;
+    }
+
+    public SwitchStatement setCases(List<SwitchCase> cases) {
+        this.cases = cases;
+        return this;
+    }
+
     public void addCase(SwitchCase switchCase) {
         this.cases.add(switchCase);
     }
@@ -43,6 +52,15 @@ public class SwitchStatement extends GlslStatement {
 
         public SwitchCase setValue(GlslValue value) {
             this.value = value;
+            return this;
+        }
+
+        public List<GlslStatement> getStatements() {
+            return statements;
+        }
+
+        public SwitchCase setStatements(List<GlslStatement> statements) {
+            this.statements = statements;
             return this;
         }
 

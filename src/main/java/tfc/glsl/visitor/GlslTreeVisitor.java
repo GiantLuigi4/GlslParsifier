@@ -38,7 +38,7 @@ public class GlslTreeVisitor {
         }
 
         @Override
-        public void visitBreak(ContinueStatement statement) {
+        public void visitBreak(BreakStatement statement) {
             statementVisitor.visitBreak(statement);
         }
 
@@ -59,7 +59,10 @@ public class GlslTreeVisitor {
         @Override
         public void visitSwitch(SwitchStatement statement) {
             statementVisitor.visitSwitch(statement);
-            throw new RuntimeException("TODO");
+            valueVisitor.visitValue(statement.getValue());
+            for (SwitchStatement.SwitchCase aCase : statement.getCases()) {
+                valueVisitor.visitValue(aCase.getValue());
+            }
         }
 
         @Override
