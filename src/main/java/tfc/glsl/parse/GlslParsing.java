@@ -71,6 +71,7 @@ class GlslParsing {
                 while (true) {
                     if (c == '*') {
                         if (reader.startsWith("*/")) {
+                            reader.skip(2);
                             break;
                         }
                     }

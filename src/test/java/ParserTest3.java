@@ -7,6 +7,11 @@ public class ParserTest3 {
         GlslFile file = parser.parse("""
                 #version 330 core
 
+                /* comment */
+                /*
+                    multiline
+                    comment
+                */
                 #extension GL_ARB_explicit_uniform_location : require
 
                 layout(r8ui) uniform writeonly uimage3D voxel_img;
