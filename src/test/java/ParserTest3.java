@@ -15,12 +15,16 @@ public class ParserTest3 {
                 #extension GL_ARB_explicit_uniform_location : require
 
                 layout(r8ui) uniform writeonly uimage3D voxel_img;
+                float c = cos(a), s = sin(a);
 
                 void main() {
-                    int a = 0;
-                    if (a == 0 || a == 1 && a == 2) {
+                    float c = cos(a), s = sin(a);
+                    {
+                        int a = 0;
+                        if (a == 0 || a == 1 && a == 2) {
+                        }
+                        float f = 0.3f;
                     }
-                    float f = 0.3f;
                 }
                 """);
 

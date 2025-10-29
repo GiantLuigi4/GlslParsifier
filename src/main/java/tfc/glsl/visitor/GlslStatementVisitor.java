@@ -1,7 +1,6 @@
 package tfc.glsl.visitor;
 
 import tfc.glsl.base.GlslStatement;
-import tfc.glsl.segments.ArbitrarySegment;
 import tfc.glsl.statements.*;
 
 public interface GlslStatementVisitor {
@@ -41,7 +40,7 @@ public interface GlslStatementVisitor {
             case WHILE -> {
                 WhileStatement loop = (WhileStatement) statement;
                 visitWhile(loop);
-                for (GlslStatement glslStatement : loop.getBlock()) {
+                for (GlslStatement glslStatement : loop.getBody()) {
                     visitStatement(glslStatement);
                 }
             }

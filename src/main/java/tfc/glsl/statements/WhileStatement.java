@@ -30,8 +30,13 @@ public class WhileStatement extends GlslStatement {
         block.add(statement);
     }
 
-    public List<GlslStatement> getBlock() {
+    public List<GlslStatement> getBody() {
         return block;
+    }
+
+    public WhileStatement setBody(List<GlslStatement> block) {
+        this.block = block;
+        return this;
     }
 
     @Override

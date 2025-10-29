@@ -30,6 +30,15 @@ public class DoWhileStatement extends GlslStatement {
         block.add(statement);
     }
 
+    public List<GlslStatement> getBody() {
+        return block;
+    }
+
+    public DoWhileStatement setBody(List<GlslStatement> block) {
+        this.block = block;
+        return this;
+    }
+
     @Override
     public void asString(StringBuilder builder, int indentLevel) {
         builder.append("\t".repeat(indentLevel)).append("do {\n");

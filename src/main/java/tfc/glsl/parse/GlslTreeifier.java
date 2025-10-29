@@ -97,7 +97,7 @@ public class GlslTreeifier {
                     if (streamer.current().is(']')) {
                         streamer.advance();
                         if (!streamer.current().is('(')) {
-                            throw new RuntimeException("Unexpected symbol");
+                            throw new ParseException("Unexpected symbol");
                         }
                         streamer.advance();
                         List<GlslValue> values = new ArrayList<>();
@@ -465,11 +465,14 @@ public class GlslTreeifier {
             throw new ParseException("Unexpected symbol");
         streamer.advance();
 
-        GlslStatement vd;
+        List<GlslStatement> vd;
         if (streamer.current().is(';'))
-            vd = new ArbitraryStatement("");
+            vd = Collections.singletonList(new ArbitraryStatement(""));
         else vd = nextStatement(streamer);
         streamer.advance();
+        if (vd.size() != 1) {
+            throw new ParseException("Expected a single var def statement.");
+        }
 
         GlslValue comparison;
         if (streamer.current().is(';'))
@@ -477,20 +480,23 @@ public class GlslTreeifier {
         else comparison = nextValue(streamer);
         streamer.advance();
 
-        GlslStatement incr;
+        List<GlslStatement> incr;
         if (streamer.current().is(';'))
-            incr = new ArbitraryStatement("");
+            incr = Collections.singletonList(new ArbitraryStatement(""));
         else incr = nextStatement(streamer);
         streamer.advance();
+        if (incr.size() != 1) {
+            throw new ParseException("Expected a single increment statement.");
+        }
 
-        ForStatement forSt = new ForStatement(vd, comparison, incr);
+        ForStatement forSt = new ForStatement(vd.get(0), comparison, incr.get(0));
 
         if (!streamer.current().is('{')) {
-            forSt.addStatement(nextStatement(streamer));
+            forSt.getBody().addAll(nextStatement(streamer));
             streamer.advance();
         } else {
             streamer.advance();
-            nextBody(streamer, forSt::addStatement);
+            nextBody(streamer, forSt.getBody()::addAll);
         }
 
         return forSt;
@@ -513,7 +519,7 @@ public class GlslTreeifier {
         if (!streamer.current().is('{'))
             throw new ParseException("Unexpected symbol");
         streamer.advance();
-        nextBody(streamer, statement::addStatement);
+        nextBody(streamer, statement.getBody()::addAll);
 
         return statement;
     }
@@ -525,11 +531,11 @@ public class GlslTreeifier {
         DoWhileStatement statement = new DoWhileStatement(PLACEHOLDER_TRUE);
 
         if (!streamer.current().is('{')) {
-            statement.addStatement(nextStatement(streamer));
+            statement.getBody().addAll(nextStatement(streamer));
             streamer.advance();
         } else {
             streamer.advance();
-            nextBody(streamer, statement::addStatement);
+            nextBody(streamer, statement.getBody()::addAll);
         }
 
         if (!streamer.current().is("while"))
@@ -550,14 +556,14 @@ public class GlslTreeifier {
         streamer.advance(); // pop "switch"
 
         if (!streamer.current().is('('))
-            throw new RuntimeException("Unexpected symbol");
+            throw new ParseException("Unexpected symbol");
         streamer.advance();
 
         GlslValue value = nextValue(streamer);
         streamer.advance();
 
         if (!streamer.current().is('{'))
-            throw new RuntimeException("Unexpected symbol");
+            throw new ParseException("Unexpected symbol");
         streamer.advance();
 
         SwitchStatement statement = new SwitchStatement(value);
@@ -571,11 +577,11 @@ public class GlslTreeifier {
                 streamer.advance();
                 switchCase = new SwitchStatement.SwitchCase(nextValue(streamer));
                 if (!streamer.current().is(':'))
-                    throw new RuntimeException("Unexpected symbol");
+                    throw new ParseException("Unexpected symbol");
                 streamer.advance();
                 statement.addCase(switchCase);
             } else {
-                switchCase.addStatement(
+                switchCase.getStatements().addAll(
                         nextStatement(streamer)
                 );
             }
@@ -585,43 +591,52 @@ public class GlslTreeifier {
         return statement;
     }
 
-    private static GlslStatement nextStatement(TokenStreamer streamer) {
+    private static List<GlslStatement> nextStatement(TokenStreamer streamer) {
         // if statement type can be immediately resolved, statement is that statement type
         // elsewise, statement is var def or var assignment based upon position of =
 
         GlslToken token = streamer.current();
 
         switch (token.type()) {
+            case SYMBOL -> {
+                if (token.is('{')) {
+                    streamer.advance();
+                    BodyStatement statement = new BodyStatement(new ArrayList<>());
+                    nextBody(streamer, statement.getBody()::addAll);
+                    return Collections.singletonList(statement);
+                }
+                throw new ParseException("Unexpected symbol");
+            }
             case IF -> {
-                return nextIf(streamer);
+                return Collections.singletonList(nextIf(streamer));
             }
             case SWITCH -> {
-                return nextSwitch(streamer);
+                return Collections.singletonList(nextSwitch(streamer));
             }
             case FOR -> {
-                return nextFor(streamer);
+                return Collections.singletonList(nextFor(streamer));
             }
             case DO -> {
-                return nextDo(streamer);
+                return Collections.singletonList(nextDo(streamer));
             }
             case WHILE -> {
-                return nextWhile(streamer);
+                return Collections.singletonList(nextWhile(streamer));
             }
             case CONTINUE -> {
                 streamer.advance();
-                return ContinueStatement.INSTANCE;
+                return Collections.singletonList(ContinueStatement.INSTANCE);
             }
             case BREAK -> {
                 streamer.advance();
-                return BreakStatement.INSTANCE;
+                return Collections.singletonList(BreakStatement.INSTANCE);
             }
             case RETURN -> {
                 streamer.advance();
                 token = streamer.current();
                 if (token.is(';')) {
-                    return new ReturnStatement();
+                    return Collections.singletonList(new ReturnStatement());
                 } else {
-                    return new ReturnStatement(nextValue(streamer));
+                    return Collections.singletonList(new ReturnStatement(nextValue(streamer)));
                 }
             }
             default -> {
@@ -630,22 +645,23 @@ public class GlslTreeifier {
                 if (
                         value.getValueType() == ValueType.ASSIGNMENT
                 ) {
-                    return new AssignmentStatement(
+                    return Collections.singletonList(new AssignmentStatement(
                             ((AssignmentValue) value).getRef(),
                             ((AssignmentValue) value).getValue()
-                    ).setAuxiliaryOp(((AssignmentValue) value).getAuxiliaryOp());
+                    ).setAuxiliaryOp(((AssignmentValue) value).getAuxiliaryOp()));
                 } else if (value.getValueType() == ValueType.FUNCTION) {
-                    return new MethodCallStatement(
+                    return Collections.singletonList(new MethodCallStatement(
                             (MethodCallValue) value
-                    );
+                    ));
                 } else if (value.getValueType() == ValueType.INC) {
-                    return new IncStatement(
+                    return Collections.singletonList(new IncStatement(
                             ((IncValue) value).getRef(),
                             ((IncValue) value).getOperation()
-                    ).setPreIncrement(((IncValue) value).isPreIncrement());
+                    ).setPreIncrement(((IncValue) value).isPreIncrement()));
                 }
                 streamer.setIndex(index);
 
+                List<GlslStatement> statements = new ArrayList<>();
                 {
                     VarSpecifier varSpec = nextVarSpecifierFull(streamer);
 
@@ -660,9 +676,42 @@ public class GlslTreeifier {
                         VarDefStatement statement = new VarDefStatement(varSpec);
                         streamer.advance();
                         statement.setValue(nextValue(streamer));
-                        return statement;
+                        statements.add(statement);
+
+                        while (streamer.current().is(',')) {
+                            streamer.advance();
+                            String name = streamer.current().string();
+                            VarSpecifier nSpec = new VarSpecifier(
+                                    varSpec.getType(),
+                                    name
+                            ).setArray(varSpec.getArray());
+                            streamer.advance();
+
+                            token1 = streamer.current();
+
+                            GlslValue vv;
+                            if (token1.is('=') || token1.is(TokenType.OPERATOR)) {
+                                str = token1.string();
+                                if (!str.equals("=")) {
+                                    throw new ParseException("Unexpected symbol");
+                                }
+
+                                streamer.advance();
+                                vv = nextValue(streamer);
+                            } else {
+                                vv = null;
+                            }
+                            statement = new VarDefStatement(nSpec).setValue(vv);
+                            statements.add(statement);
+                        }
+
+                        if (!streamer.current().is(';')) {
+                            throw new ParseException("Unexpected symbol");
+                        }
+
+                        return statements;
                     } else if (token1.is(';')) {
-                        return new VarDefStatement(varSpec);
+                        return Collections.singletonList(new VarDefStatement(varSpec));
                     } else {
                         throw new ParseException("Unexpected symbol");
                     }
@@ -689,11 +738,11 @@ public class GlslTreeifier {
         );
 
         if (!streamer.current().is("{")) {
-            conditionalCode.addStatement(nextStatement(streamer));
+            conditionalCode.getStatements().addAll(nextStatement(streamer));
             streamer.advance();
         } else {
             streamer.advance();
-            nextBody(streamer, conditionalCode::addStatement);
+            nextBody(streamer, conditionalCode.getStatements()::addAll);
         }
 
         statement.addStep(conditionalCode);
@@ -722,9 +771,9 @@ public class GlslTreeifier {
             }
             if (streamer.current().is('{')) {
                 streamer.advance();
-                nextBody(streamer, conditionalCode::addStatement);
+                nextBody(streamer, conditionalCode.getStatements()::addAll);
             } else {
-                conditionalCode.addStatement(nextStatement(streamer));
+                conditionalCode.getStatements().addAll(nextStatement(streamer));
                 streamer.advance();
             }
 
@@ -734,7 +783,7 @@ public class GlslTreeifier {
         return statement;
     }
 
-    private static void nextBody(TokenStreamer streamer, Consumer<GlslStatement> addStatement) {
+    private static void nextBody(TokenStreamer streamer, Consumer<List<GlslStatement>> addStatement) {
         while (!streamer.current().is('}')) {
             popSemis(streamer);
             if (streamer.current().is('}'))
@@ -780,7 +829,7 @@ public class GlslTreeifier {
         }
         streamer.advance();
 
-        nextBody(streamer, codeSegment::addStatement);
+        nextBody(streamer, codeSegment.getStatements()::addAll);
 
         return codeSegment;
     }
@@ -827,7 +876,7 @@ public class GlslTreeifier {
                             if (!streamer.current().is(','))
                                 break;
                             else {
-                                System.out.println("h");
+//                                System.out.println("h");
                                 streamer.advance();
                                 ((GlslMemberSegment) segment).getMember().getVar().setName(
                                         streamer.current().string()
@@ -852,6 +901,7 @@ public class GlslTreeifier {
                 if (streamer.current().is('(')) {
                     return Collections.singletonList(nextFunction(specifier, streamer));
                 } else if (streamer.current().is(';')) {
+                    // TODO: support multi-def here
                     return Collections.singletonList(new GlslVarSegment(
                             specifier
                     ));
@@ -859,9 +909,35 @@ public class GlslTreeifier {
                     streamer.advance();
                     GlslValue value = nextValue(streamer);
 
-                    return Collections.singletonList(new GlslVarSegment(
+                    List<GlslSegment> segments = new ArrayList<>();
+                    segments.add(new GlslVarSegment(
                             specifier
                     ).setValue(value));
+
+                    while (streamer.current().is(',')) {
+                        streamer.advance();
+
+                        VarSpecifier nSpec = new VarSpecifier(
+                                specifier.getType(),
+                                streamer.current().string()
+                        ).setArray(specifier.getArray());
+                        streamer.advance();
+
+                        if (streamer.current().is('=')) {
+                            streamer.advance();
+                            value = nextValue(streamer);
+                        } else {
+                            value = null;
+                        }
+
+                        segments.add(new GlslVarSegment(nSpec).setValue(value));
+                    }
+
+                    if (!streamer.current().is(';')) {
+                        throw new ParseException("Unexpected symbol");
+                    }
+
+                    return segments;
                 } else {
                     throw new ParseException("Unexpected symbol");
                 }
