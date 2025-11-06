@@ -3,6 +3,7 @@ package tfc.glsl.statements;
 import tfc.glsl.base.GlslStatement;
 import tfc.glsl.base.GlslValue;
 import tfc.glsl.base.StatementType;
+import tfc.glsl.util.DuplicationUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +68,12 @@ public class SwitchStatement extends GlslStatement {
         public void addStatement(GlslStatement glslStatement) {
             statements.add(glslStatement);
         }
+
+        public SwitchCase duplicate() {
+            return new SwitchCase(
+                    value.duplicate()
+            ).setStatements(DuplicationUtil.duplicateBody(statements));
+        }
     }
 
     @Override
@@ -88,5 +95,16 @@ public class SwitchStatement extends GlslStatement {
         }
         builder.append("\t".repeat(indentLevel));
         builder.append("}");
+    }
+
+    @Override
+    public GlslStatement duplicate() {
+        List<SwitchCase> nv = new ArrayList<>(cases.size());
+        for (SwitchCase aCase : cases) {
+            nv.add(aCase.duplicate());
+        }
+        return new SwitchStatement(
+                value.duplicate()
+        ).setCases(nv);
     }
 }

@@ -18,4 +18,6 @@ public abstract class GlslStatement {
         asString(builder, 0);
         return builder.toString();
     }
+
+    public abstract GlslStatement duplicate();
 }

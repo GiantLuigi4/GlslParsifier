@@ -6,6 +6,7 @@ import tfc.glsl.base.GlslSegment;
 import tfc.glsl.base.GlslValue;
 import tfc.glsl.base.SegmentType;
 import tfc.glsl.meta.VarSpecifier;
+import tfc.glsl.util.DuplicationUtil;
 
 public class GlslVarSegment extends GlslSegment {
     @Nullable String qualifier;
@@ -58,5 +59,11 @@ public class GlslVarSegment extends GlslSegment {
             return;
         }
         builder.append(var).append(";");
+    }
+
+    public GlslSegment duplicate() {
+        return new GlslVarSegment(
+                DuplicationUtil.dupVarSpec(var)
+        ).setQualifier(qualifier).setValue(value != null ? value.duplicate() : null);
     }
 }

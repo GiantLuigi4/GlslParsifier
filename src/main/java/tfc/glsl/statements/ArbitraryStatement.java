@@ -25,4 +25,9 @@ public class ArbitraryStatement extends GlslStatement {
     public void asString(StringBuilder builder, int indentLevel) {
         builder.append("\t".repeat(indentLevel)).append(text);
     }
+
+    @Override
+    public GlslStatement duplicate() {
+        return new ArbitraryStatement(text);
+    }
 }

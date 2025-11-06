@@ -14,4 +14,9 @@ public class DiscardStatement extends GlslStatement {
     public void asString(StringBuilder builder, int indentLevel) {
         builder.append("\t".repeat(indentLevel)).append("discard;");
     }
+
+    @Override
+    public GlslStatement duplicate() {
+        return this;
+    }
 }

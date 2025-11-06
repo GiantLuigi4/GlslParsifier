@@ -36,6 +36,6 @@ public class ParenthValue extends GlslValue {
 
     @Override
     public GlslValue duplicate() {
-        return new ParenthValue(value);
+        return new ParenthValue(value.duplicate());
     }
 }

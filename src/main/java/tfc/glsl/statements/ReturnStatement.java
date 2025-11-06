@@ -38,4 +38,9 @@ public class ReturnStatement extends GlslStatement {
         }
         builder.append("\t".repeat(indentLevel)).append("return;");
     }
+
+    @Override
+    public GlslStatement duplicate() {
+        return new ReturnStatement(value != null ? value.duplicate() : null);
+    }
 }

@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import tfc.glsl.base.GlslStatement;
 import tfc.glsl.base.GlslValue;
 import tfc.glsl.base.StatementType;
+import tfc.glsl.util.DuplicationUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,5 +50,12 @@ public class WhileStatement extends GlslStatement {
             builder.append("\n");
         }
         builder.append("\t".repeat(indentLevel)).append("}");
+    }
+
+    @Override
+    public GlslStatement duplicate() {
+        return new WhileStatement(
+                condition.duplicate()
+        ).setBody(DuplicationUtil.duplicateBody(block));
     }
 }

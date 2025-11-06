@@ -3,6 +3,7 @@ package tfc.glsl.statements;
 import tfc.glsl.base.GlslStatement;
 import tfc.glsl.base.GlslValue;
 import tfc.glsl.base.StatementType;
+import tfc.glsl.util.DuplicationUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +57,11 @@ public class ForStatement extends GlslStatement {
         return body;
     }
 
+    public ForStatement setBody(List<GlslStatement> body) {
+        this.body = body;
+        return this;
+    }
+
     protected String toStr(Object statement, boolean endSemi) {
         if (statement == null) {
             return ";";
@@ -85,5 +91,14 @@ public class ForStatement extends GlslStatement {
             builder.append("\n");
         }
         builder.append("\t".repeat(indentLevel)).append("}");
+    }
+
+    @Override
+    public GlslStatement duplicate() {
+        return new ForStatement(
+                varDef.duplicate(),
+                comparison.duplicate(),
+                increment.duplicate()
+        ).setBody(DuplicationUtil.duplicateBody(body));
     }
 }

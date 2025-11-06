@@ -27,4 +27,9 @@ public class MethodCallStatement extends GlslStatement {
         value.asString(builder);
         builder.append(";");
     }
+
+    @Override
+    public GlslStatement duplicate() {
+        return new MethodCallStatement((MethodCallValue) value.duplicate());
+    }
 }

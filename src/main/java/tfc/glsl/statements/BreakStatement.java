@@ -14,4 +14,9 @@ public class BreakStatement extends GlslStatement {
     public void asString(StringBuilder builder, int indentLevel) {
         builder.append("\t".repeat(indentLevel)).append("break;");
     }
+
+    @Override
+    public GlslStatement duplicate() {
+        return this;
+    }
 }

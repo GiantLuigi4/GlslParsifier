@@ -14,4 +14,9 @@ public class ContinueStatement extends GlslStatement {
     public void asString(StringBuilder builder, int indentLevel) {
         builder.append("\t".repeat(indentLevel)).append("continue;");
     }
+
+    @Override
+    public GlslStatement duplicate() {
+        return this;
+    }
 }

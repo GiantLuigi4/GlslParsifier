@@ -5,6 +5,7 @@ import tfc.glsl.base.GlslSegment;
 import tfc.glsl.base.GlslStatement;
 import tfc.glsl.base.SegmentType;
 import tfc.glsl.meta.Parameter;
+import tfc.glsl.util.DuplicationUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +56,25 @@ public class GlslCodeSegment extends GlslSegment {
         return this;
     }
 
+    public List<String> getQualifiers() {
+        return qualifiers;
+    }
+
+    public GlslCodeSegment setQualifiers(List<String> qualifiers) {
+        this.qualifiers = qualifiers;
+        return this;
+    }
+
+    public GlslCodeSegment setParams(List<Parameter> params) {
+        this.params = params;
+        return this;
+    }
+
+    public GlslCodeSegment setStatements(List<GlslStatement> statements) {
+        this.statements = statements;
+        return this;
+    }
+
     public GlslCodeSegment addParam(Parameter parameter) {
         params.add(parameter);
         return this;
@@ -97,5 +117,14 @@ public class GlslCodeSegment extends GlslSegment {
             builder.append("\n");
         }
         builder.append("}");
+    }
+
+    public GlslSegment duplicate() {
+        return new GlslCodeSegment(
+                type, name
+        ).setArraySpec(arraySpec)
+                .setStatements(DuplicationUtil.duplicateBody(statements))
+                .setParams(DuplicationUtil.duplicateParams(params))
+                .setQualifiers(qualifiers != null ? new ArrayList<>(qualifiers) : null);
     }
 }

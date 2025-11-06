@@ -69,4 +69,9 @@ public class AssignmentStatement extends GlslStatement {
         value.asString(builder);
         builder.append(";");
     }
+
+    @Override
+    public GlslStatement duplicate() {
+        return new AssignmentStatement(ref.duplicate(), auxiliaryOp, value.duplicate());
+    }
 }

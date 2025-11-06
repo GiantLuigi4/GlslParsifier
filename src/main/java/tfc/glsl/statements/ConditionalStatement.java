@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Nullable;
 import tfc.glsl.base.GlslStatement;
 import tfc.glsl.base.GlslValue;
 import tfc.glsl.base.StatementType;
+import tfc.glsl.util.DuplicationUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,15 @@ public class ConditionalStatement extends GlslStatement {
         public void addStatement(GlslStatement statement) {
             statements.add(statement);
         }
+
+        private ConditionalCode setStatements(List<GlslStatement> nv) {
+            statements = nv;
+            return this;
+        }
+
+        public ConditionalCode duplicate() {
+            return new ConditionalCode(condition != null ? condition.duplicate() : null).setStatements(DuplicationUtil.duplicateBody(statements));
+        }
     }
 
     @Override
@@ -78,5 +88,19 @@ public class ConditionalStatement extends GlslStatement {
 
     public List<ConditionalCode> getChain() {
         return chain;
+    }
+
+    private ConditionalStatement setChain(List<ConditionalCode> nv) {
+        this.chain = nv;
+        return this;
+    }
+
+    @Override
+    public GlslStatement duplicate() {
+        List<ConditionalCode> nv = new ArrayList<>();
+        for (ConditionalCode conditionalCode : chain) {
+            nv.add(conditionalCode.duplicate());
+        }
+        return new ConditionalStatement().setChain(nv);
     }
 }

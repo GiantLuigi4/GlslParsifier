@@ -7,6 +7,9 @@ import tfc.glsl.base.GlslValue;
 import tfc.glsl.base.StatementType;
 import tfc.glsl.meta.VarSpecifier;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class VarDefStatement extends GlslStatement {
     @NotNull VarSpecifier var;
     @Nullable GlslValue value;
@@ -43,5 +46,13 @@ public class VarDefStatement extends GlslStatement {
             value.asString(builder);
         }
         builder.append(";");
+    }
+
+    @Override
+    public GlslStatement duplicate() {
+        List<String> modifiers = var.getModifiers();
+        return new VarDefStatement(new VarSpecifier(
+                var.getType(), var.getName()
+        ).setArray(var.getArray()).setModifiers(modifiers != null ? new ArrayList<>(modifiers) : null)).setValue(value != null ? value.duplicate() : null);
     }
 }

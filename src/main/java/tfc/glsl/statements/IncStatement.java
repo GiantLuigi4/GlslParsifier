@@ -55,4 +55,12 @@ public class IncStatement extends GlslStatement {
             builder.append(operation).append(";");
         }
     }
+
+    @Override
+    public GlslStatement duplicate() {
+        return new IncStatement(
+                ref.duplicate(),
+                operation
+        );
+    }
 }

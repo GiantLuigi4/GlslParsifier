@@ -2,7 +2,9 @@ package tfc.glsl.statements;
 
 import tfc.glsl.base.GlslStatement;
 import tfc.glsl.base.StatementType;
+import tfc.glsl.util.DuplicationUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BodyStatement extends GlslStatement {
@@ -30,5 +32,10 @@ public class BodyStatement extends GlslStatement {
             builder.append("\n");
         }
         builder.append("\t".repeat(indentLevel)).append("}");
+    }
+
+    @Override
+    public GlslStatement duplicate() {
+        return new BodyStatement(DuplicationUtil.duplicateBody(body));
     }
 }
