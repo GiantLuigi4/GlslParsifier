@@ -18,6 +18,7 @@ public class ParserTest3 {
                 float c = cos(a), s = sin(a);
 
                 void main() {
+                    vec3 q, v;
                     float c = cos(a), s = sin(a);
                     {
                         int a = 0;

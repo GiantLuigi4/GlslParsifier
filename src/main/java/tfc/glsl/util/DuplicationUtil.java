@@ -1,6 +1,7 @@
 package tfc.glsl.util;
 
 import tfc.glsl.base.GlslStatement;
+import tfc.glsl.base.GlslValue;
 import tfc.glsl.meta.Parameter;
 import tfc.glsl.meta.VarSpecifier;
 
@@ -32,5 +33,13 @@ public class DuplicationUtil {
                 .setArray(var.getArray()).setModifiers(
                         modifs != null ? new ArrayList<>(modifs) : modifs
                 );
+    }
+
+    public static List<GlslValue> duplicateValues(List<GlslValue> values) {
+        List<GlslValue> dup = new ArrayList<>(values.size());
+        for (int i = 0; i < values.size(); i++) {
+            dup.add(values.get(i).duplicate());
+        }
+        return dup;
     }
 }

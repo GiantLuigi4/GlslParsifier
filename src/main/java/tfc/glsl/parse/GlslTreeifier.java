@@ -10,6 +10,7 @@ import tfc.glsl.meta.*;
 import tfc.glsl.meta.enums.StorageQualifier;
 import tfc.glsl.segments.*;
 import tfc.glsl.statements.*;
+import tfc.glsl.util.DuplicationUtil;
 import tfc.glsl.util.LiteralNumber;
 import tfc.glsl.value.*;
 
@@ -103,7 +104,7 @@ public class GlslTreeifier {
                         List<GlslValue> values = new ArrayList<>();
                         if (!streamer.current().is(')')) {
                             while (true) {
-                                values.add(nextValue(streamer));
+                                values.add(nextValue(streamer, false));
                                 if (streamer.current().is(')')) {
                                     break;
                                 } else {
@@ -127,7 +128,7 @@ public class GlslTreeifier {
 
                     List<GlslValue> params = new ArrayList<>();
                     while (!streamer.current().is(')')) {
-                        GlslValue param = nextValue(streamer);
+                        GlslValue param = nextValue(streamer, false);
                         params.add(param);
                         GlslToken current = streamer.current();
                         if (!(current.is(',') || current.is(')'))) {
@@ -281,7 +282,7 @@ public class GlslTreeifier {
         return value;
     }
 
-    private static GlslValue nextValue(TokenStreamer streamer) {
+    private static GlslValue nextValue(TokenStreamer streamer, boolean allowComma) {
 //        return nextValueNoExpr(streamer);
         GlslValue value = ExpressionParser.doParse(
                 streamer, () -> nextValueNoExpr(streamer)
@@ -291,7 +292,21 @@ public class GlslTreeifier {
             value = nextTernary(value, streamer);
         }
 
+        if (allowComma && streamer.current().is(',')) {
+            List<GlslValue> parts = new ArrayList<>();
+            parts.add(value);
+            while (streamer.current().is(',')) {
+                streamer.advance();
+                parts.add(nextValue(streamer, true)); // allow chaining
+            }
+            return new CommaValue(parts); // implement CommaValue as a sequence node
+        }
+
         return value;
+    }
+
+    private static GlslValue nextValue(TokenStreamer streamer) {
+        return nextValue(streamer, true);
     }
 
     private static ArraySpecifier nextArraySpecifier(TokenStreamer streamer) {
@@ -675,16 +690,14 @@ public class GlslTreeifier {
 
                         VarDefStatement statement = new VarDefStatement(varSpec);
                         streamer.advance();
-                        statement.setValue(nextValue(streamer));
+                        statement.setValue(nextValue(streamer, false));
                         statements.add(statement);
 
                         while (streamer.current().is(',')) {
                             streamer.advance();
                             String name = streamer.current().string();
-                            VarSpecifier nSpec = new VarSpecifier(
-                                    varSpec.getType(),
-                                    name
-                            ).setArray(varSpec.getArray());
+                            VarSpecifier nSpec = DuplicationUtil.dupVarSpec(varSpec);
+                            nSpec.setName(name);
                             streamer.advance();
 
                             token1 = streamer.current();
@@ -697,7 +710,7 @@ public class GlslTreeifier {
                                 }
 
                                 streamer.advance();
-                                vv = nextValue(streamer);
+                                vv = nextValue(streamer, false);
                             } else {
                                 vv = null;
                             }
@@ -712,6 +725,16 @@ public class GlslTreeifier {
                         return statements;
                     } else if (token1.is(';')) {
                         return Collections.singletonList(new VarDefStatement(varSpec));
+                    } else if (streamer.current().is(',')) {
+                        statements.add(new VarDefStatement(varSpec));
+                        while (streamer.current().is(',')) {
+                            streamer.advance();
+                            varSpec = DuplicationUtil.dupVarSpec(varSpec);
+                            varSpec.setName(streamer.current().string());
+                            streamer.advance();
+                            statements.add(new VarDefStatement(varSpec));
+                        }
+                        return statements;
                     } else {
                         throw new ParseException("Unexpected symbol");
                     }

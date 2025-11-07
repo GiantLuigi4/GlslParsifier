@@ -67,4 +67,9 @@ public abstract class GlslValueVisitorAdapter implements GlslValueVisitor {
     public void visitArrayCreation(CreateArrayValue createArrayValue) {
 
     }
+
+    @Override
+    public void visitComma(CommaValue createArrayValue) {
+
+    }
 }

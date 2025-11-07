@@ -30,6 +30,8 @@ public interface GlslValueVisitor {
 
     void visitArrayCreation(CreateArrayValue createArrayValue);
 
+    void visitComma(CommaValue createArrayValue);
+
     default void visitValue(GlslValue value) {
         switch (value.getValueType()) {
             case TOKEN -> visitToken((TokenValue) value);
@@ -95,6 +97,13 @@ public interface GlslValueVisitor {
                 visitValue(createArrayValue.getArrayType());
                 for (GlslValue arg : createArrayValue.getValues()) {
                     visitValue(arg);
+                }
+            }
+            case COMMA -> {
+                CommaValue commaValue = (CommaValue) value;
+                visitComma(commaValue);
+                for (GlslValue value1 : commaValue.getValues()) {
+                    visitValue(value1);
                 }
             }
             default -> throw new RuntimeException("Unrecognized value type");
