@@ -164,12 +164,12 @@ public class GlslTreeifier {
 
     private static GlslValue nextTernary(GlslValue value, TokenStreamer streamer) {
         streamer.advance(); // pop ?
-        GlslValue valueA = nextValue(streamer);
+        GlslValue valueA = nextValue(streamer, false);
         if (!streamer.current().is(':'))
             throw new ParseException("Unexpected symbol");
         streamer.advance();
 
-        GlslValue valueB = nextValue(streamer);
+        GlslValue valueB = nextValue(streamer, false);
 
         return new TernaryValue(value, valueA, valueB);
     }
@@ -181,6 +181,14 @@ public class GlslTreeifier {
                 GlslValue value = nextValue(streamer);
                 streamer.advance();
                 return new ParenthValue(value);
+            }
+            case "+" -> {
+                streamer.advance();
+                GlslValue value = new UnaryOperation(
+                        "+",
+                        nextValueNoExpr(streamer)
+                );
+                return value;
             }
             case "-" -> {
                 streamer.advance();
@@ -361,13 +369,30 @@ public class GlslTreeifier {
         return nextVarSpecifier(streamer).setModifiers(attributes);
     }
 
-    private static Member nextMember(TokenStreamer streamer) {
-        Member member = new Member(
-                nextVarSpecifierFull(streamer)
-        );
+    private static List<Member> nextMember(TokenStreamer streamer) {
+		List<Member> members = new ArrayList<>();
+	    
+	    LayoutQualifier layout = null;
+	    if (streamer.current().is(TokenType.LAYOUT)) {
+			streamer.advance();
+		    layout = layout(streamer);
+	    }
+	    VarSpecifier specifier = nextVarSpecifierFull(streamer);
+	    members.add(new Member(specifier).setLayout(layout));
+		
+		while (streamer.current().is(',')) {
+			streamer.advance();
+			
+			String name = streamer.current().string();
+			VarSpecifier nSpec = DuplicationUtil.dupVarSpec(specifier);
+			nSpec.setName(name);
+			streamer.advance();
+			members.add(new Member(nSpec));
+		}
+		
         // TODO: attribute qualifiers?
         // TODO: default values?
-        return member;
+        return members;
     }
 
     private static GlslSegment nextVarBlock(TokenStreamer streamer, StorageQualifier qualifier) {
@@ -387,7 +412,9 @@ public class GlslTreeifier {
         }
         GlslToken current = streamer.current();
         while (!current.is('}')) {
-            segment.addMember(nextMember(streamer));
+	        for (Member member : nextMember(streamer)) {
+		        segment.addMember(member);
+	        }
             popSemis(streamer);
             current = streamer.current();
         }
@@ -589,12 +616,20 @@ public class GlslTreeifier {
             if (streamer.current().is('}')) {
                 break;
             } else if (streamer.current().is(TokenType.CASE)) {
-                streamer.advance();
-                switchCase = new SwitchStatement.SwitchCase(nextValue(streamer));
-                if (!streamer.current().is(':'))
-                    throw new ParseException("Unexpected symbol");
-                streamer.advance();
-                statement.addCase(switchCase);
+	            streamer.advance();
+	            switchCase = new SwitchStatement.SwitchCase(nextValue(streamer));
+	            if (!streamer.current().is(':'))
+		            throw new ParseException("Unexpected symbol");
+	            streamer.advance();
+	            statement.addCase(switchCase);
+            } else if (streamer.current().is(TokenType.DEFAULT)) {
+	            streamer.advance();
+	            if (!streamer.current().is(':'))
+		            throw new ParseException("Unexpected symbol");
+				streamer.advance();
+	            
+				switchCase = new SwitchStatement.SwitchCase(null);
+	            statement.addCase(switchCase);
             } else {
                 switchCase.getStatements().addAll(
                         nextStatement(streamer)
@@ -682,15 +717,15 @@ public class GlslTreeifier {
 
                     GlslToken token1 = streamer.current();
 
-                    if (token1.is('=') || token1.is(TokenType.OPERATOR)) {
+                    if (token1.is('=') || token1.is(TokenType.OPERATOR) || token1.is(',')) {
                         String str = token1.string();
-                        if (!str.equals("=")) {
-                            throw new ParseException("Unexpected symbol");
-                        }
-
-                        VarDefStatement statement = new VarDefStatement(varSpec);
-                        streamer.advance();
-                        statement.setValue(nextValue(streamer, false));
+						
+	                    VarDefStatement statement = new VarDefStatement(varSpec);
+						
+	                    if (str.equals("=")) {
+		                    streamer.advance();
+		                    statement.setValue(nextValue(streamer, false));
+	                    }
                         statements.add(statement);
 
                         while (streamer.current().is(',')) {
@@ -702,7 +737,7 @@ public class GlslTreeifier {
 
                             token1 = streamer.current();
 
-                            GlslValue vv;
+							GlslValue vv;
                             if (token1.is('=') || token1.is(TokenType.OPERATOR)) {
                                 str = token1.string();
                                 if (!str.equals("=")) {
@@ -928,14 +963,17 @@ public class GlslTreeifier {
                     return Collections.singletonList(new GlslVarSegment(
                             specifier
                     ));
-                } else if (streamer.current().is('=')) {
-                    streamer.advance();
-                    GlslValue value = nextValue(streamer);
-
-                    List<GlslSegment> segments = new ArrayList<>();
-                    segments.add(new GlslVarSegment(
-                            specifier
-                    ).setValue(value));
+                } else if (streamer.current().is('=') || streamer.current().is(',')) {
+	                List<GlslSegment> segments = new ArrayList<>();
+	                GlslValue value = null;
+					if (streamer.current().is('=')) {
+						streamer.advance();
+						value = nextValue(streamer);
+					}
+					
+	                segments.add(new GlslVarSegment(
+			                specifier
+	                ).setValue(value));
 
                     while (streamer.current().is(',')) {
                         streamer.advance();

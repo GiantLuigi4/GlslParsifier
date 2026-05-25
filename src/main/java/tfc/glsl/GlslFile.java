@@ -1,6 +1,7 @@
 package tfc.glsl;
 
 import tfc.glsl.base.GlslSegment;
+import tfc.glsl.base.SegmentType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,24 @@ public class GlslFile {
     public GlslFile(String version) {
         this.version = version;
     }
-
+	
+	/**
+	 * Convenience function to ensure all extension directives are at the top of the file
+	 */
+	public void fixDirectives() {
+		List<GlslSegment> extensionDirectives = new ArrayList<>();
+		
+		for (GlslSegment segment : segments) {
+			if (segment.getSegmentType() == SegmentType.EXTENSION) {
+				extensionDirectives.add(segment);
+			}
+		}
+		
+		segments.removeAll(extensionDirectives);
+		
+		segments.addAll(0, extensionDirectives);
+	}
+	
     public void addSegment(GlslSegment segment) {
         segments.add(segment);
     }

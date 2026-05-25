@@ -1,5 +1,6 @@
 package tfc.glsl.statements;
 
+import org.jetbrains.annotations.Nullable;
 import tfc.glsl.base.GlslStatement;
 import tfc.glsl.base.GlslValue;
 import tfc.glsl.base.StatementType;
@@ -40,13 +41,15 @@ public class SwitchStatement extends GlslStatement {
     }
 
     public static class SwitchCase {
+	    @Nullable
         GlslValue value;
         List<GlslStatement> statements = new ArrayList<>();
 
-        public SwitchCase(GlslValue value) {
+        public SwitchCase(@Nullable GlslValue value) {
             this.value = value;
         }
 
+		@Nullable
         public GlslValue getValue() {
             return value;
         }
@@ -74,6 +77,10 @@ public class SwitchStatement extends GlslStatement {
                     value.duplicate()
             ).setStatements(DuplicationUtil.duplicateBody(statements));
         }
+	    
+	    public boolean isDefault() {
+		    return value == null;
+	    }
     }
 
     @Override
@@ -83,10 +90,15 @@ public class SwitchStatement extends GlslStatement {
         value.asString(builder);
         builder.append(") {\n");
         for (SwitchCase aCase : cases) {
-            builder.append("\t".repeat(indentLevel));
-            builder.append("case ");
-            aCase.value.asString(builder);
-            builder.append(":\n");
+			if (aCase.isDefault()) {
+				builder.append("\t".repeat(indentLevel));
+				builder.append("default:\n");
+			} else {
+				builder.append("\t".repeat(indentLevel));
+				builder.append("case ");
+				aCase.value.asString(builder);
+				builder.append(":\n");
+			}
 
             for (GlslStatement statement : aCase.statements) {
                 statement.asString(builder, indentLevel + 1);

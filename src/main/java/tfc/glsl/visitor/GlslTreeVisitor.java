@@ -61,7 +61,8 @@ public class GlslTreeVisitor {
             statementVisitor.visitSwitch(statement);
             valueVisitor.visitValue(statement.getValue());
             for (SwitchStatement.SwitchCase aCase : statement.getCases()) {
-                valueVisitor.visitValue(aCase.getValue());
+				if (aCase.getValue() != null)
+	                valueVisitor.visitValue(aCase.getValue());
             }
         }
 

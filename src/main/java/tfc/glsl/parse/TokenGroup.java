@@ -22,7 +22,8 @@ public enum TokenGroup {
             TokenType.CENTROID,
             TokenType.CONST,
             TokenType.READONLY,
-            TokenType.WRITEONLY
+            TokenType.WRITEONLY,
+            TokenType.RESTRICT
     ),
     TYPE(
             TokenType.FLOAT,

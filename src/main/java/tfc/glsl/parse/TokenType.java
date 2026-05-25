@@ -12,6 +12,7 @@ public enum TokenType {
     VOID("void"), INT("int"),
     FLOAT("float"), BOOL("bool"),
 
+    RESTRICT("restrict"),
     CONST("const"),
     READONLY("readonly"),
     WRITEONLY("writeonly"),
@@ -24,7 +25,7 @@ public enum TokenType {
     IF("if"), ELSE("else"),
     FOR("for"), WHILE("while"),
     DO("do"), SWITCH("switch"),
-    CASE("case"),
+    CASE("case"), DEFAULT("default"),
 
     BREAK("break"), CONTINUE("continue"),
     RETURN("return"),
