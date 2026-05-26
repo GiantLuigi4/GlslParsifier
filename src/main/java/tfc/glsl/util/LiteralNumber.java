@@ -45,7 +45,7 @@ public class LiteralNumber extends Number {
     public long longValue() {
         if (!floatingPoint) {
             try {
-                Long.parseLong(literal);
+                return Long.parseLong(literal);
             } catch (Throwable err) {
             }
         }
@@ -56,7 +56,7 @@ public class LiteralNumber extends Number {
     public float floatValue() {
         if (!forceDouble) {
             try {
-                Float.parseFloat(literal);
+	            return Float.parseFloat(literal);
             } catch (Throwable err) {
             }
         }
